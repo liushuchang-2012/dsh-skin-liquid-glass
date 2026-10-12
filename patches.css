@@ -1,0 +1,546 @@
+/* ============================================================================
+   iOS Liquid Glass — material layer
+   ----------------------------------------------------------------------------
+   Four glass tiers, one rim, one motion.
+
+     T1 chrome      sidebar · right panel · session header   blur 30 · alpha .34
+     T2 content     prose plates · user bubble               blur 26 · alpha .42
+     T3 controls    composer · tool bar                      blur 30 · alpha .48
+     T4 overlays    menu · dialog · toast                    blur 40 · alpha .78
+
+   House rules this file follows:
+
+   1. Blur never rides a box that contains a position:fixed descendant. The
+      shell renders hover tooltips as fixed spans inside action rows and inside
+      the composer card; a backdrop-filter there makes the box their containing
+      block and flings the tooltip into the scrollport (skin-center #1724). Big
+      containers therefore take their blur from a ::before plate, which has no
+      descendants at all, and only small leaf blocks are frosted directly.
+   2. Everything a skin paints must survive the "wallpaper opacity" slider.
+      Fills read --dsw-skin-scrim, so a fuller wallpaper thins the glass out in
+      step with the token layer in skin.css.
+   3. Exactly one moving part: a slow specular sweep across the session header.
+      Everything else is still, and the sweep stops under reduced motion.
+   ========================================================================= */
+
+/* --- material tokens ------------------------------------------------------ */
+
+:root {
+  --ios-lg-sat: 150%;
+  --ios-lg-blur-chrome: 30px;
+  --ios-lg-blur-plate: 26px;
+  --ios-lg-blur-overlay: 40px;
+
+  /* monochrome materials — no hue anywhere in the chrome. The baseline alpha is
+     deliberately high because the "wallpaper opacity" slider often sits at 0,
+     and a glass panel that went transparent there would let the conversation
+     behind it bleed through the composer. Light greys sit one step off white so
+     the shell never reads as "mid grey". */
+  --ios-lg-chrome: rgba(253, 253, 253, calc(.30 + var(--dsw-skin-scrim, 0) * .24));
+  --ios-lg-plate: rgba(255, 255, 255, calc(.50 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate-strong: rgba(255, 255, 255, calc(.64 + var(--dsw-skin-scrim, 0) * .16));
+  /* tables and code blocks hold dense copy, so they get a near-solid card */
+  --ios-lg-plate-solid: rgba(255, 255, 255, calc(.84 + var(--dsw-skin-scrim, 0) * .10));
+  --ios-lg-control: rgba(255, 255, 255, calc(.92 + var(--dsw-skin-scrim, 0) * .06));
+  /* the composer reads as one pane of glass: denser in the middle where the
+     text is, thinner at the rim (a flat fill looked like a white sticker) */
+  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%, rgba(255, 255, 255, .96), rgba(255, 255, 255, .85));
+  --ios-lg-overlay: rgba(250, 250, 252, .95);
+  --ios-lg-field: rgba(255, 255, 255, .96);
+
+  --ios-lg-rim: inset 0 1px 0 rgba(255, 255, 255, .82);
+  --ios-lg-rim-soft: inset 0 1px 0 rgba(255, 255, 255, .54);
+  --ios-lg-hairline: rgba(60, 60, 67, .09);
+  --ios-lg-shadow: 0 18px 44px -24px rgba(0, 0, 0, .16), 0 2px 10px -8px rgba(0, 0, 0, .08);
+  --ios-lg-shadow-lift: 0 26px 60px -28px rgba(0, 0, 0, .20), 0 4px 14px -8px rgba(0, 0, 0, .10);
+  /* the composer's surrounding glow: a blurred halo, not a hard ring */
+  --ios-lg-halo: 0 0 34px 12px rgba(255, 255, 255, .44), 0 0 3px 1px rgba(255, 255, 255, .34);
+  --ios-lg-sheen: linear-gradient(100deg, rgba(255, 255, 255, 0) 34%, rgba(255, 255, 255, .52) 50%, rgba(255, 255, 255, 0) 66%);
+}
+
+body[data-ds-dark-theme] {
+  --ios-lg-chrome: rgba(32, 32, 34, calc(.44 + var(--dsw-skin-scrim, 0) * .24));
+  --ios-lg-plate: rgba(42, 42, 44, calc(.54 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate-strong: rgba(50, 50, 52, calc(.64 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate-solid: rgba(52, 52, 54, calc(.86 + var(--dsw-skin-scrim, 0) * .08));
+  --ios-lg-control: rgba(38, 38, 40, calc(.92 + var(--dsw-skin-scrim, 0) * .06));
+  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%, rgba(46, 46, 48, .96), rgba(30, 30, 32, .88));
+  --ios-lg-overlay: rgba(32, 32, 34, .95);
+  --ios-lg-field: rgba(255, 255, 255, .94);
+
+  --ios-lg-rim: inset 0 1px 0 rgba(255, 255, 255, .11);
+  --ios-lg-rim-soft: inset 0 1px 0 rgba(255, 255, 255, .07);
+  --ios-lg-hairline: rgba(255, 255, 255, .10);
+  --ios-lg-shadow: 0 18px 44px -24px rgba(0, 0, 0, .60), 0 2px 10px -8px rgba(0, 0, 0, .36);
+  --ios-lg-shadow-lift: 0 26px 60px -28px rgba(0, 0, 0, .68), 0 4px 14px -8px rgba(0, 0, 0, .42);
+  --ios-lg-halo: 0 0 34px 12px rgba(255, 255, 255, .07);
+  --ios-lg-sheen: linear-gradient(100deg, rgba(255, 255, 255, 0) 34%, rgba(255, 255, 255, .14) 50%, rgba(255, 255, 255, 0) 66%);
+}
+
+/* --- T0 canvas: let the wallpaper through --------------------------------- */
+
+[id="root"] {
+  background: none !important;
+}
+
+[data-dsh-frame] {
+  background: transparent !important;
+}
+
+/* the Windows shell paints its title strip with the opaque sidebar fill and
+   parks the window drag region on that strip's ::before — keep the drag
+   region, drop the paint, frost the strip instead */
+[data-windows-titlebar] [data-dsh-frame]::before {
+  background: var(--ios-lg-chrome);
+  border-bottom: 1px solid var(--ios-lg-hairline);
+  box-shadow: var(--ios-lg-rim-soft);
+  -webkit-backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
+  backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
+}
+
+/* --- T1 chrome ------------------------------------------------------------ */
+
+/* All three columns are ONE material. This is the fix for the divider that kept
+   showing: the shell paints --dsw-specific-sidebar-fill on the sidebar column
+   alone and the conversation washed itself a second time, so the three columns
+   used to sit at roughly .59 / .15 / .30 white — every junction read as a step
+   plus a hard 1px ink border. Now the sidebar's own fill is removed, the centre
+   column carries the same chrome plate, the wash is gone and the separators are
+   faint hairlines: the window is a single sheet of glass over the wallpaper. */
+[data-dsh-surface="sidebar"],
+[data-slot="sidebar"],
+[class*="sidebarCol"],
+[class*="rightbarCol"],
+[data-sidebar-right-session],
+[data-sidebar-right-open],
+[data-dsh-surface="conversation"],
+[class*="centerCol"] {
+  position: relative;
+  box-shadow: none;
+}
+
+[class*="sidebarCol"] {
+  background: transparent !important;
+  border-right-color: var(--ios-lg-hairline) !important;
+}
+
+/* The centre column and every settings / market sheet paint themselves with
+   --dsw-alias-bg-base. The plate below is the column's only fill (otherwise the
+   raised bg-base doubles up and the conversation reads darker than the sidebar);
+   the sheets that live *inside* the column keep their own bg-base, which is what
+   makes 插件市场 / 设置 readable instead of letting the page behind bleed through. */
+[class*="centerCol"],
+[data-dsh-surface="conversation"] {
+  background: transparent !important;
+}
+
+[class*="rightbarCol"],
+[data-sidebar-right-session],
+[data-sidebar-right-panel] {
+  box-shadow: none !important;
+  border-left-color: var(--ios-lg-hairline) !important;
+}
+
+[data-dsh-surface="sidebar"]::before,
+[data-slot="sidebar"]::before,
+[class*="sidebarCol"]::before,
+[class*="rightbarCol"]::before,
+[data-sidebar-right-session]::before,
+[data-dsh-surface="conversation"]::before,
+[class*="centerCol"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ios-lg-chrome);
+  box-shadow: var(--ios-lg-rim-soft);
+  -webkit-backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
+  backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
+  pointer-events: none;
+}
+
+/* a panel nested in the right column must not stack a second plate */
+[class*="rightbarCol"] [class*="panel"][data-sidebar-right-open]:not([class*="panelBody"]) {
+  background: transparent !important;
+  border-left-color: var(--ios-lg-hairline);
+}
+
+/* session header: frosted strip + the one deliberate motion. Both pseudo
+   elements sit behind the header's own content, and neither has descendants,
+   so the tooltips inside the action row stay attached to their buttons. */
+[data-dsh-surface="session-header"],
+[data-slot="conversation.session.header"] {
+  position: relative;
+  background: transparent !important;
+  border-bottom: 1px solid var(--ios-lg-hairline);
+  box-shadow: var(--ios-lg-rim-soft);
+}
+
+[data-dsh-surface="session-header"]::before,
+[data-slot="conversation.session.header"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ios-lg-chrome);
+  -webkit-backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
+  backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
+  pointer-events: none;
+}
+
+[data-dsh-surface="session-header"]::after,
+[data-slot="conversation.session.header"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--ios-lg-sheen);
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  opacity: .5;
+  pointer-events: none;
+  animation: ios-lg-sweep 21s cubic-bezier(.4, 0, .2, 1) infinite;
+}
+
+@keyframes ios-lg-sweep {
+  0% { background-position: 165% 0; }
+  55% { background-position: -65% 0; }
+  100% { background-position: -65% 0; }
+}
+
+/* --- T2 content ----------------------------------------------------------- */
+
+/* No extra wash on the scrollport or its content. The centre column already
+   carries the same chrome plate as the two side columns, and painting a wash on
+   top of it put the conversation at a different brightness from its neighbours —
+   which is exactly what made the column seams visible. The scrollport still
+   takes no filter of its own: the fixed tooltips live inside it. */
+
+/* Prose plates grow OUTWARD from the text box instead of padding inward: the
+   plate is a ::before with negative insets, so the copy keeps the shell's own
+   text column while the frame gains breathing room on every side. Rounding used
+   to collide with the first glyph because the frame was exactly the text box.
+   The element itself carries no background and no filter — a filter here would
+   make the paragraph a containing block for the fixed tooltips inside it. */
+[class*="markdown"] > p,
+[class*="markdown"] > :where(h1, h2, h3, h4, h5, h6),
+[class*="markdown"] > blockquote,
+[class*="markdown"] > :where(ul, ol) {
+  position: relative;
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+[class*="markdown"] > p::before,
+[class*="markdown"] > :where(h1, h2, h3, h4, h5, h6)::before,
+[class*="markdown"] > blockquote::before,
+[class*="markdown"] > :where(ul, ol)::before {
+  content: "";
+  position: absolute;
+  inset: -.18em -.7em;
+  z-index: -1;
+  border-radius: 14px;
+  background: var(--ios-lg-plate);
+  box-shadow: var(--ios-lg-rim-soft), 0 10px 26px -22px rgba(0, 0, 0, .26);
+  -webkit-backdrop-filter: blur(var(--ios-lg-blur-plate)) saturate(var(--ios-lg-sat));
+  backdrop-filter: blur(var(--ios-lg-blur-plate)) saturate(var(--ios-lg-sat));
+  pointer-events: none;
+}
+
+[class*="markdown"] > :where(h1, h2, h3, h4, h5, h6) {
+  background: var(--ios-lg-plate-strong);
+}
+
+/* the user bubble is the one saturated surface in the transcript: brand tint,
+   stronger rim, and the deepest shadow in the room */
+/* the user bubble is white glass with the faintest iOS-blue cast — enough to
+   read as "my message" in an otherwise black-and-white room, not enough to be
+   a paint chip. Drop the two rgba() tints to grey for a fully monochrome
+   transcript; the fill colour itself comes from --dsw-specific-bubble. */
+[data-slot="main.conversation"] [class*="userStack"] [class*="bubble"] {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 124, 255, calc(.08 + var(--dsh-skin-bubble-alpha, .5) * .06)),
+    rgba(10, 124, 255, calc(.04 + var(--dsh-skin-bubble-alpha, .5) * .04))
+  );
+  border: 1px solid rgba(10, 124, 255, .13);
+  border-radius: 20px;
+  box-shadow: var(--ios-lg-rim);
+  -webkit-backdrop-filter: blur(var(--dsh-skin-bubble-blur, 10px)) saturate(var(--ios-lg-sat));
+  backdrop-filter: blur(var(--dsh-skin-bubble-blur, 10px)) saturate(var(--ios-lg-sat));
+}
+
+body[data-ds-dark-theme] [data-slot="main.conversation"] [class*="userStack"] [class*="bubble"] {
+  background: linear-gradient(180deg, rgba(10, 132, 255, .15), rgba(10, 132, 255, .08));
+  border-color: rgba(120, 180, 255, .17);
+}
+
+/* fenced code, tables and disclosure rows hold copy buttons whose tooltips are
+   fixed, so they take the material from a plate instead of the box */
+[class*="md-code-block"],
+[class*="markdown"] [class*="tableScroll"],
+[class*="markdown"] [class*="tableFill"] {
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid var(--ios-lg-hairline);
+  box-shadow: var(--ios-lg-rim-soft);
+}
+
+[class*="md-code-block"]::before,
+[class*="markdown"] [class*="tableScroll"]::before,
+[class*="markdown"] [class*="tableFill"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ios-lg-plate-solid);
+  -webkit-backdrop-filter: blur(var(--ios-lg-blur-plate)) saturate(var(--ios-lg-sat));
+  backdrop-filter: blur(var(--ios-lg-blur-plate)) saturate(var(--ios-lg-sat));
+  pointer-events: none;
+}
+
+/* the shell's table cells carry `padding-left: 0`, so the first column used to
+   sit right on the card's left border — the "left border" that read as clipped.
+   Give the card a gutter and the first column a little inset. */
+[class*="markdown"] [class*="tableScroll"],
+[class*="markdown"] [class*="tableFill"] {
+  padding: 8px 14px;
+}
+
+[class*="markdown"] :is([class*="tableScroll"], [class*="tableFill"]) table :is(th, td):first-child {
+  padding-left: 8px;
+}
+
+[class*="markdown"] [class*="tableFill"] table {
+  width: max-content;
+}
+
+/* the app's own bg-layer paints would double-plate a row inside a plate */
+[data-slot="main.conversation"] [class*="callRow"] [class*="o3BgMG_root"],
+[data-slot="main.conversation"] [class*="callRow"] [class*="o3BgMG_summary"],
+[data-slot="main.conversation"] [class*="callRow"] [data-disclosure-row] {
+  background: none !important;
+}
+
+/* Thinking chain / tool rows. Whole-process wrappers keep square corners —
+   padding them would shift the transcript — while the leaf rows get a real
+   inset pulled back out with negative margins, so the copy sits fully inside
+   the rounding instead of colliding with it. */
+[data-turn-process],
+[data-step-process] {
+  border-radius: 0;
+}
+
+[data-process-activity],
+[data-disclosure-row],
+[data-closure],
+[data-collapsed-summary],
+[data-context-injection-body],
+[data-system-prompt-body] {
+  border-radius: 12px;
+  padding: .4em .68em;
+  margin-left: -.68em;
+  margin-right: -.68em;
+}
+
+/* --- T3 composer ---------------------------------------------------------- */
+
+/* the skin center already sizes and mounts [data-dsh-composer-frost] as the
+   composer's blur follower (it must not be the card itself: the card owns the
+   fixed tooltips). Only fill the gap when that follower is not mounted. */
+[data-composer-card] {
+  background: var(--ios-lg-control-fill);
+  border: 1px solid var(--ios-lg-hairline);
+  border-radius: 22px;
+  /* a blurred halo outside the outline instead of a crisp ring: the composer
+     should float on the canvas, not sit in its own window frame */
+  box-shadow: var(--ios-lg-rim), var(--ios-lg-halo), var(--ios-lg-shadow-lift);
+}
+
+/* the composer is the one surface that must always hide what is behind it: the
+   transcript scrolls underneath it, and at the wallpaper slider's default 0 a
+   thin fill let the two texts overlap. */
+[data-composer-card] textarea,
+[data-composer-card] [contenteditable="true"],
+[data-composer-input] {
+  background-color: transparent !important;
+}
+
+body:not(:has([data-dsh-composer-frost])) [data-composer-card] {
+  position: relative;
+}
+
+body:not(:has([data-dsh-composer-frost])) [data-composer-card]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  -webkit-backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
+  backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
+  pointer-events: none;
+}
+
+[data-composer-chip],
+[data-composer-input],
+[data-queue-dock] {
+  border-radius: 14px;
+}
+
+[data-composer-chip] {
+  background: var(--ios-lg-plate);
+  box-shadow: var(--ios-lg-rim-soft);
+}
+
+/* --- T4 overlays ---------------------------------------------------------- */
+
+[data-menu-material="translucent"],
+[data-dsh-part="dialog"],
+[role="dialog"],
+[class*="dialog"]:not([class*="dialogBody"]),
+[class*="menu"]:not([class*="menuItem"]):not([class*="menuGroup"]),
+[class*="toast"] {
+  border-radius: 18px;
+}
+
+[role="dialog"],
+[class*="dialog"]:not([class*="dialogBody"]) {
+  box-shadow: var(--ios-lg-rim), var(--ios-lg-shadow-lift);
+  -webkit-backdrop-filter: blur(var(--ios-lg-blur-overlay)) saturate(var(--ios-lg-sat));
+  backdrop-filter: blur(var(--ios-lg-blur-overlay)) saturate(var(--ios-lg-sat));
+}
+
+/* the shell paints the dialog body with its own translucent layer, which used to
+   sit *inside* the card and let the page behind read through the copy — the
+   "文字重叠" case. The card above carries the material, so the body clears. */
+[class*="dialogBody"],
+[class*="dialogBody"] > * {
+  background-color: transparent;
+}
+
+/* fields inside a sheet are typed into, so they get a solid fill instead of the
+   shell's translucent layer (which ghosted the content behind the dialog). */
+[role="dialog"] :is(input, textarea, select, [class*="input"]),
+[class*="dialog"] :is(input, textarea, select, [class*="input"]:not([class*="dialog"])) {
+  background-color: var(--ios-lg-field) !important;
+}
+
+[class*="menu"][class*="backing"],
+[data-menu-backing] {
+  border-radius: 14px;
+  box-shadow: var(--ios-lg-rim-soft), var(--ios-lg-shadow);
+}
+
+[class*="toast"] {
+  box-shadow: var(--ios-lg-rim-soft), var(--ios-lg-shadow);
+  -webkit-backdrop-filter: blur(var(--ios-lg-blur-overlay)) saturate(var(--ios-lg-sat));
+  backdrop-filter: blur(var(--ios-lg-blur-overlay)) saturate(var(--ios-lg-sat));
+}
+
+/* NB: no blanket `[class*="overlay"]` rule — it also matches the composer's own
+   overlay layer and greys the whole canvas. The shell's modal scrim is left as
+   it ships; only the surfaces on top of it are re-materialised above. */
+
+/* --- controls, hairlines, scrollbars -------------------------------------- */
+
+[data-pane="sidebar"] [class*="navCell"],
+[data-pane="sidebar"] [class*="entryRow"],
+[data-pane="sidebar"] [class*="sessionRow"] {
+  border-radius: 12px;
+}
+
+[data-pane="sidebar"] [class*="navCell"]:not([aria-current="true"]),
+[data-pane="sidebar"] button[role="tab"] {
+  background: transparent;
+}
+
+[data-dsh-surface="sidebar"] [class*="newSession"],
+[data-pane="sidebar"] [class*="newSession"] {
+  border-radius: 14px;
+  box-shadow: var(--ios-lg-rim-soft);
+}
+
+body::-webkit-scrollbar {
+  width: 10px;
+}
+
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: var(--dsw-alias-scrollbar-bg-l2);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--dsw-alias-scrollbar-hover-l2);
+}
+
+::selection {
+  background: rgba(10, 124, 255, .22);
+}
+
+:focus-visible {
+  outline-color: rgba(10, 124, 255, .58);
+}
+
+/* --- accessibility -------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-dsh-surface="session-header"]::after,
+  [data-slot="conversation.session.header"]::after {
+    animation: none;
+    background-image: none;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  [data-dsh-surface="sidebar"]::before,
+  [data-slot="sidebar"]::before,
+  [class*="sidebarCol"]::before,
+  [class*="rightbarCol"]::before,
+  [data-sidebar-right-session]::before,
+  [data-dsh-surface="conversation"]::before,
+  [class*="centerCol"]::before,
+  [data-dsh-surface="session-header"]::before,
+  [data-slot="conversation.session.header"]::before,
+  [data-windows-titlebar] [data-dsh-frame]::before,
+  [class*="md-code-block"]::before,
+  [data-composer-card]::before,
+  [class*="markdown"] > p::before,
+  [class*="markdown"] > :where(h1, h2, h3, h4, h5, h6)::before,
+  [class*="markdown"] > blockquote::before,
+  [class*="markdown"] > :where(ul, ol)::before {
+    background: var(--dsw-alias-bg-layer-1);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  [data-composer-card],
+  [data-slot="main.conversation"] [class*="userStack"] [class*="bubble"] {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--dsw-alias-bg-layer-2);
+  }
+}
+
+/* --- Windows title strip: square the chat column's top-left corner ---------
+   The Windows shell rounds that corner on its own
+   ([data-windows-titlebar] .BynINW_centerCol { border-radius:
+   var(--dsh-windows-content-radius) 0 0 0 }), which cuts a notch where the
+   sidebar meets the chat column. Square it (same corner on the fullscreen
+   right panel) and leave the strip painted with the same white glass as the
+   buttons sitting on it. */
+[data-windows-titlebar] [class*="centerCol"],
+[data-windows-titlebar] [data-sidebar-right-panel="fullscreen"] [data-dockkit-column="0"][data-dockkit-pane] {
+  border-top-left-radius: 0 !important;
+  corner-shape: round;
+}
