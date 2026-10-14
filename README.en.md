@@ -6,6 +6,7 @@ generated wallpapers, so you can drop it into the user skin directory, switch it
 and delete it again without touching the app.
 
 - skin id: `ios-liquid-glass`
+- repository: <https://github.com/liushuchang-2012/dsh-skin-liquid-glass> (MIT)
 - install path: `%USERPROFILE%\.dsh\skins\ios-liquid-glass\`
 - activate: **Settings → 皮肤 (Skin center) → iOS 液态玻璃**, or
   `POST /api/skin-center/v2/active` with `{"active":"ios-liquid-glass"}`
