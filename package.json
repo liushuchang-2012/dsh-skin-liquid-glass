@@ -1,0 +1,66 @@
+{
+  "name": "dsh-skin-liquid-glass",
+  "version": "0.1.0",
+  "description": "iOS 26 Liquid Glass skin for the DeepSeek Harness Web UI — one sheet of frosted glass over a pastel mesh wallpaper, system blue as the only accent, light and dark palettes both checked for AA text contrast. Ships as a DSH client plugin with no host-side behaviour and no dependency.",
+  "type": "module",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "author": "liushuchang-2012",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liushuchang-2012/dsh-skin-liquid-glass.git"
+  },
+  "homepage": "https://github.com/liushuchang-2012/dsh-skin-liquid-glass#readme",
+  "bugs": {
+    "url": "https://github.com/liushuchang-2012/dsh-skin-liquid-glass/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "plugin",
+    "client-plugin",
+    "theme",
+    "skin",
+    "ios",
+    "liquid-glass",
+    "frosted-glass"
+  ],
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/bundle.test.mjs tests/manifest.test.mjs",
+    "prepublishOnly": "node scripts/build.mjs && node --check client.js"
+  },
+  "files": [
+    "lib",
+    "client.js",
+    "src",
+    "scripts",
+    "tests",
+    "cordis.patch.yml",
+    "skin.css",
+    "patches.css",
+    "skin.json",
+    "assets",
+    "preview",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ]
+}

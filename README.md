@@ -1,11 +1,31 @@
-# iOS 液态玻璃 · iOS Liquid Glass
+﻿# iOS 液态玻璃 · iOS Liquid Glass
 
-照 iOS 26 / macOS 的 Liquid Glass 语言给 DSH Web 做的一层皮肤。纯声明式资产目录，不含 `hooks.mjs`、不跑任何 JS，因此可以在用户皮肤目录里手工安装并随时删掉。
+照 iOS 26 / macOS 的 Liquid Glass 语言给 DSH Web 做的一层皮肤。皮肤部分纯声明式资产，不含 `hooks.mjs`、不跑任何 JS；同一个仓库也以 **DSH 客户端插件**的形式发布（`dsh.bundle.patch` + `client.js`），插件那一半只往文档里塞三个 `<style>` 元素，没有依赖、没有网络请求。
 
 - **皮肤 id**：`ios-liquid-glass`
+- **插件包名**：`dsh-skin-liquid-glass`
 - **源码仓库**：<https://github.com/liushuchang-2012/dsh-skin-liquid-glass>（MIT）
 - **安装位置**：`%USERPROFILE%\.dsh\skins\ios-liquid-glass\`
 - **启用方式**：设置 → 皮肤中心 → 「iOS 液态玻璃」，或直接 `POST /api/skin-center/v2/active` 带 `{"active":"ios-liquid-glass"}`
+
+## 安装
+
+**方式一 · 皮肤中心（本机皮肤目录）**：把仓库内容放进 `%USERPROFILE%\.dsh\skins\ios-liquid-glass\`，然后在 设置 → 皮肤中心 里启用。
+
+**方式二 · 当插件装（`dsh plugin`，等价于在 profile 目录里跑 pnpm）**：
+
+```bash
+# Git 直装
+dsh plugin --profile desktop add github:liushuchang-2012/dsh-skin-liquid-glass
+
+# 或从本地目录装（开发者改完代码直接用这个验证）
+dsh plugin --profile desktop add "C:\path\to\dsh-skin-liquid-glass"
+
+# 卸载
+dsh plugin --profile desktop remove dsh-skin-liquid-glass
+```
+
+装完重载页面即可生效。插件形态下 `client.js` 自己铺壁纸与遮罩，所以**不需要**皮肤中心；反过来也一样，两种方式可以各自单独使用，但不要同时开两层（同一套规则会叠两遍，壁纸也会画两次）。
 
 ## 配色：黑白灰 + 系统强调色
 
@@ -30,6 +50,12 @@
 | `patches.css` | **材质层**：backdrop blur、高光内描边、圆角、发丝分隔线、唯一那处动效 |
 | `assets/ios-liquid-light.jpg` · `assets/ios-liquid-dark.jpg` | 2560×1440 中性灰壁纸 |
 | `preview/light.jpg` · `preview/dark.jpg` | 皮肤中心卡片用的预览图（从实机截图生成） |
+| `package.json` · `cordis.patch.yml` · `lib/index.js` | 插件宿主半边：roster patch 挂载一个 no-op 的 cordis 插件，客户端 bundle 才有机会进 `window.__DSH_BOOT__` |
+| `src/client.template.js` | 客户端 bundle 源码（带占位符，不直接分发） |
+| `scripts/build.mjs` | 零依赖打包器：把两份 CSS、两张压缩壁纸、skin.json 里的遮罩拼进 `client.js` |
+| `client.js` | **构建产物**：`window.__ModuleLoader__.load({ id, factory })`，只碰 DOM，不 require 任何共享模块 |
+| `tests/*.test.mjs` | `npm test`：bundle 生命周期 + 打包接线检查，跑起来不需要任何依赖 |
+| `screenshots.json` | 插件市场用的截图清单（指向 `preview/` 两张） |
 
 ## 四层材质
 
@@ -79,6 +105,21 @@
 
 1. **含有 `position: fixed` 后代的盒子不能上 backdrop-filter**。shell 把每个图标的 hover 提示渲染成 action row / 输入卡片内部的 fixed span；一旦这些盒子成了 containing block，提示就会飞到几百像素外或钻进滚动区（皮肤中心 #1724）。所以大容器（侧栏、右栏、标题栏、代码块、表格）的模糊都挂在 `::before` 假层上——假层没有后代，不可能截断任何定位；只有正文段落、用户气泡这类叶子节点才直接加模糊。
 2. **不改几何、不碰交互**。除了圆角、内描边和背景填充，不动 padding/宽度/滚动结构；`prefers-reduced-motion` 关掉那一道高光扫过，`prefers-reduced-transparency` 把玻璃降级成实色面板。
+
+## 插件形态（client bundle）
+
+同一个仓库同时是一个 DSH 客户端插件，所以市场里既能当皮肤装、也能 `dsh plugin add`：
+
+- 宿主半边 `lib/index.js` 是空的 `apply()`，只为了让 cordis 起一个 fiber；开关没有走 `dsh-settings`（第三方命名空间对 Web 端会答 `settings-not-exposed`），而是存在 `localStorage["dsh-skin-liquid-glass.enabled"]`，默认开启，也可以在浏览器里调 `setEnabled(false)` 立即收起。
+- 客户端半边 `client.js` **不 require 任何模块**（`dsh.client.inject` 为空数组）：所有选择器要么是 `--dsw-*` 令牌别名、要么是 `[class*="_suffix"]`，外壳换 hash 也不会失效。
+- 三个 `<style data-plugin-css=…>` 图层：`skin.css`（令牌层）、`patches.css`（材质层）、以及打包时生成的壁纸层（`body` 铺图 + skin.json 里的 scrim，深色走 `body[data-ds-dark-theme]`）。teardown（热重载 / 卸载 / 换 profile）时一起摘掉。
+- 壁纸是 1600×900 / q88 的再压缩版（浅色 40 KB、深色 48 KB），base64 之后整包 **165 KB**。
+
+```bash
+npm run build                            # 重新生成 client.js（改完 CSS / 壁纸 / skin.json 之后必跑）
+npm test                                 # bundle 生命周期 + 打包接线，共 14 项
+dsh plugin --profile desktop add "$PWD"  # 本地装一份看效果
+```
 
 ## 卸载 / 回退
 

@@ -1,0 +1,5 @@
+# dsh-skin-liquid-glass roster patch — merged by `dsh plugin add` (dsh.bundle.patch).
+# Mounts the host half so the client bundle reaches window.__DSH_BOOT__.
+- insert:
+    - id: dsh-skin-liquid-glass
+      name: 'dsh-skin-liquid-glass'

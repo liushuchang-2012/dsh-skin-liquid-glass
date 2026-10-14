@@ -1,17 +1,45 @@
-# iOS Liquid Glass — a DeepSeek Harness skin
+﻿# iOS Liquid Glass — a DeepSeek Harness skin
 
-An Apple-inspired glass skin for the DSH Web client. It is a **declarative skin-center
-skin**: no plugin, no `hooks.mjs`, no JavaScript — three CSS/JSON parts and two
-generated wallpapers, so you can drop it into the user skin directory, switch it on
-and delete it again without touching the app.
+An Apple-inspired glass skin for the DSH Web client. The skin itself is
+**declarative**: no `hooks.mjs`, no JavaScript — three CSS/JSON parts and two
+generated wallpapers, so you can drop it into the user skin directory, switch it
+on and delete it again without touching the app. The same repository also ships
+as a **DSH client plugin** (`dsh.bundle.patch` + `client.js`) whose only job is
+to append three `<style>` elements to the document: no dependencies, no network,
+nothing host-side.
 
 - skin id: `ios-liquid-glass`
+- plugin package: `dsh-skin-liquid-glass`
 - repository: <https://github.com/liushuchang-2012/dsh-skin-liquid-glass> (MIT)
 - install path: `%USERPROFILE%\.dsh\skins\ios-liquid-glass\`
 - activate: **Settings → 皮肤 (Skin center) → iOS 液态玻璃**, or
   `POST /api/skin-center/v2/active` with `{"active":"ios-liquid-glass"}`
 - remove: pick **官方默认 (Official default)** in the skin center, or delete the
   directory (no restart needed either way)
+
+## Install
+
+**1 · As a skin-center skin.** Copy the repository into
+`%USERPROFILE%\.dsh\skins\ios-liquid-glass\`, then enable it in
+**Settings → 皮肤**.
+
+**2 · As a plugin (`dsh plugin`, i.e. pnpm inside the profile directory).**
+
+```bash
+# straight from git
+dsh plugin --profile desktop add github:liushuchang-2012/dsh-skin-liquid-glass
+
+# or from a local checkout (what you want while editing the CSS)
+dsh plugin --profile desktop add "C:\path\to\dsh-skin-liquid-glass"
+
+# remove
+dsh plugin --profile desktop remove dsh-skin-liquid-glass
+```
+
+Reload the page after installing. In plugin form `client.js` paints the wallpaper
+and the scrim itself, so the skin center is not involved at all; the two install
+paths work independently — just do not run both at once (the same rules would
+stack twice and the wallpaper would be painted twice).
 
 ## Palette — greys plus the system accent colours
 
@@ -61,6 +89,32 @@ panels fill in to roughly .96.
 | `patches.css` | material layer — backdrop blur, specular rim, radii, hairlines, the one motion |
 | `assets/*.jpg` | neutral grey wallpapers (light / dark) |
 | `preview/*.jpg` | skin-center card previews, generated from real screenshots |
+| `package.json` · `cordis.patch.yml` · `lib/index.js` | plugin host half — the roster patch mounts a no-op cordis plugin so the client bundle reaches `window.__DSH_BOOT__` |
+| `src/client.template.js` · `scripts/build.mjs` · `client.js` | client bundle: template, zero-dependency builder, built artifact (`window.__ModuleLoader__.load({ id, factory })`) |
+| `tests/*.test.mjs` | `npm test` — bundle lifecycle plus package wiring, no dependencies |
+| `screenshots.json` | marketplace screenshot list (points at `preview/`) |
+
+## Plugin form (client bundle)
+
+- The host half is an empty `apply()`; the on/off flag lives in
+  `localStorage["dsh-skin-liquid-glass.enabled"]` (default on) because a
+  third-party `dsh-settings` namespace answers `settings-not-exposed` to the Web
+  client. `setEnabled(false)` in the console retracts the skin immediately.
+- The client half requires **no shared module** (`dsh.client.inject` is empty):
+  every selector is either a `--dsw-*` token alias or a `[class*="_suffix"]`
+  match, so shell hash rotations cannot break it.
+- Three `<style data-plugin-css=…>` layers — `skin.css` (tokens), `patches.css`
+  (material) and a generated wallpaper layer (`body` artwork + the scrims from
+  `skin.json`, dark palette via `body[data-ds-dark-theme]`) — all removed on
+  teardown.
+- The baked wallpapers are 1600×900 / q88 re-encodes (40 KB light, 48 KB dark);
+  the whole bundle is **165 KB**.
+
+```bash
+npm run build                            # regenerate client.js after CSS / artwork / skin.json edits
+npm test                                 # bundle lifecycle + package wiring, 14 checks
+dsh plugin --profile desktop add "$PWD"  # install a local copy and look at it
+```
 
 ## Verification
 
