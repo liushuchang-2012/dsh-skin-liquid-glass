@@ -1,0 +1,9 @@
+# Keep every text artifact byte-stable across platforms: client.js is checked by
+# `npm run build -- --check` (tests/manifest.test.mjs), so a CRLF checkout would
+# fail the build in CI.
+* text=auto eol=lf
+
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.ico binary
