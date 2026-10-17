@@ -1,4 +1,4 @@
-﻿# iOS Liquid Glass — a DeepSeek Harness skin
+# iOS Liquid Glass — a DeepSeek Harness skin
 
 An Apple-inspired glass skin for the DSH Web client. The skin itself is
 **declarative**: no `hooks.mjs`, no JavaScript — three CSS/JSON parts and two
@@ -60,13 +60,37 @@ chroma, replace the two `rgba(10, 124, 255, …)` tints in `patches.css` with gr
 | Tier | Applies to | Blur / saturation | Fill (background occlusion = 0) |
 | --- | --- | --- | --- |
 | T1 chrome | sidebar + conversation column + right column | 30px · 150% | .30 |
-| T2 content | prose plates, user bubble, code blocks, tables | 26px | .50 / .84 |
-| T3 controls | composer card (centre → edge gradient), chips, queue dock | 30px | .96 → .85 |
-| T4 overlay | menus, dialogs, toasts | 40px | .95 |
+| T2 content | prose plates, user bubble, code blocks, tables | 26px | .50 (headings match prose) |
+| T3 controls | composer card (centre → edge gradient, **semi-transparent**), chips, queue dock | 30px | **.66 → .50** |
+| T4 overlay | menus / dropdowns (shell default material), dialogs, toasts | 40px (menus: default 40px · 150%) | .95 (dialogs / toasts) |
 
 The skin-center **background occlusion** slider (`--dsw-skin-scrim`) drives every
 fill: at 0 the wallpaper is fully visible and the values above apply, at 100 the
-panels fill in to roughly .96.
+panels fill in to roughly .96. The composer card is now semi-transparent — .66 at
+the centre, .50 at the rim — with its frost supplied by the
+`[data-dsh-composer-frost]` follower the skin center mounts (the `::before` here is
+the fallback), so the transcript stays legible underneath while the wallpaper
+still reads through.
+
+## Latest feedback round
+
+- **Left column floats**: `[class*="sidebarCol"]` gains `margin: 8px 0 8px 8px`,
+  a 22px radius, `overflow: hidden` and one soft drop shadow, so the sidebar reads
+  as a glass card floating on the wallpaper instead of a flush column.
+- **Right-panel Markdown reader**: the right panel is already frosted, so the
+  per-paragraph `::before` plates (each carrying its own `backdrop-filter`) were
+  removed inside `[data-document-markdown]` and better-sidebar's `editorMd`
+  preview — long documents now scroll as a plain paint instead of re-routing a
+  backdrop under every block.
+- **Headings**: the extra square `--ios-lg-plate-strong` fill on `h1…h6` is gone;
+  headings use the same rounded `.50` plate as prose (18px radius), so they no
+  longer look whiter than the bubble around them.
+- **Dropdowns**: `--dsw-specific-menu`, `--dsw-specific-selector`,
+  `--dsw-alias-bg-overlay` and `--dsw-menu-backdrop-filter` go back to the shell's
+  defaults (light `#f8f9fa94` / dark `#43454a73`, `blur(40px) saturate(150%)`).
+- **Diff preview**: `--dsw-alias-file-diff-*` / `--dsw-alias-code-diff-*` return to
+  the shell's opaque fills (light `#e6f4e7` / `#fce6e2`, dark `#1f3124` / `#3c1f1b`),
+  and the `+n / −m` counter keeps its green / red ink at rest.
 
 ## Two invariants
 
@@ -108,7 +132,7 @@ panels fill in to roughly .96.
   `skin.json`, dark palette via `body[data-ds-dark-theme]`) — all removed on
   teardown.
 - The baked wallpapers are 1600×900 / q88 re-encodes (40 KB light, 48 KB dark);
-  the whole bundle is **165 KB**.
+  the whole bundle is **169 KB**.
 
 ```bash
 npm run build                            # regenerate client.js after CSS / artwork / skin.json edits

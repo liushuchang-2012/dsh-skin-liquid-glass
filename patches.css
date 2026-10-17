@@ -42,9 +42,13 @@
   /* tables and code blocks hold dense copy, so they get a near-solid card */
   --ios-lg-plate-solid: rgba(255, 255, 255, calc(.84 + var(--dsw-skin-scrim, 0) * .10));
   --ios-lg-control: rgba(255, 255, 255, calc(.92 + var(--dsw-skin-scrim, 0) * .06));
-  /* the composer reads as one pane of glass: denser in the middle where the
-     text is, thinner at the rim (a flat fill looked like a white sticker) */
-  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%, rgba(255, 255, 255, .96), rgba(255, 255, 255, .85));
+  /* the composer is ONE pane of semi-transparent glass over the wallpaper:
+     the fill rides the occlusion knob so it thins out together with the
+     columns, and the blur follower (or the ::before fallback) supplies the
+     frost — a near-solid fill read as a white sticker on the canvas */
+  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%,
+    rgba(255, 255, 255, calc(.66 + var(--dsw-skin-scrim, 0) * .22)),
+    rgba(255, 255, 255, calc(.50 + var(--dsw-skin-scrim, 0) * .24)));
   --ios-lg-overlay: rgba(250, 250, 252, .95);
   --ios-lg-field: rgba(255, 255, 255, .96);
 
@@ -64,7 +68,9 @@ body[data-ds-dark-theme] {
   --ios-lg-plate-strong: rgba(50, 50, 52, calc(.64 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-solid: rgba(52, 52, 54, calc(.86 + var(--dsw-skin-scrim, 0) * .08));
   --ios-lg-control: rgba(38, 38, 40, calc(.92 + var(--dsw-skin-scrim, 0) * .06));
-  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%, rgba(46, 46, 48, .96), rgba(30, 30, 32, .88));
+  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%,
+    rgba(46, 46, 48, calc(.64 + var(--dsw-skin-scrim, 0) * .22)),
+    rgba(30, 30, 32, calc(.52 + var(--dsw-skin-scrim, 0) * .24)));
   --ios-lg-overlay: rgba(32, 32, 34, .95);
   --ios-lg-field: rgba(255, 255, 255, .94);
 
@@ -119,9 +125,21 @@ body[data-ds-dark-theme] {
   box-shadow: none;
 }
 
+/* The left column is its own floating card: a large radius, a margin that
+   leaves the wallpaper visible on three sides, and one soft drop shadow.
+   The column's own fill is removed (the ::before plate is the material), so
+   clipping the column to the radius keeps every row inside the glass. */
 [class*="sidebarCol"] {
   background: transparent !important;
-  border-right-color: var(--ios-lg-hairline) !important;
+  border-right: none !important;
+  margin: 8px 0 8px 8px;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 18px 44px -26px rgba(0, 0, 0, .34), 0 2px 10px -8px rgba(0, 0, 0, .18);
+}
+
+body[data-ds-dark-theme] [class*="sidebarCol"] {
+  box-shadow: 0 18px 44px -26px rgba(0, 0, 0, .62), 0 2px 10px -8px rgba(0, 0, 0, .42);
 }
 
 /* The centre column and every settings / market sheet paint themselves with
@@ -250,8 +268,42 @@ body[data-ds-dark-theme] {
   pointer-events: none;
 }
 
-[class*="markdown"] > :where(h1, h2, h3, h4, h5, h6) {
-  background: var(--ios-lg-plate-strong);
+[class*="markdown"] > :where(h1, h2, h3, h4, h5, h6)::before {
+  /* headings sit on exactly the same rounded plate as the prose; the old
+     square --ios-lg-plate-strong fill inside this rounded frame was the
+     whiter bar that did not match the bubble it sat in */
+  border-radius: 18px;
+}
+
+/* The right panel's Markdown reader is already a frosted sheet, so it does not
+   need a plate per paragraph. Stacking a backdrop-filter under every p / h
+   inside the tab's scrollport was what made long documents scroll unevenly
+   (the browser has to re-route the backdrop on every painted block). The
+   reader now draws the copy straight on the panel glass — lighter, cleaner,
+   and the scroll is a plain paint. */
+[data-document-markdown] :where(p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol),
+[class*="editorMd"] :where(p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol) {
+  position: static;
+  background: none;
+  box-shadow: none;
+}
+
+[data-document-markdown] :where(p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol)::before,
+[class*="editorMd"] :where(p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol)::before {
+  content: none;
+  display: none;
+}
+
+/* The `+n / −m` counter of an edit row is a measurement, not chrome: the
+   shell only inks it on hover, which left the numbers in the quiet grey
+   summary ink and read as washed out (the "预览改动 +n-m 透明度不好" report).
+   Keep the added / removed hues legible at rest. */
+[data-slot="main.conversation"] [class*="diffStat"] [class*="diffAdded"] {
+  color: var(--dsw-alias-state-success-primary);
+}
+
+[data-slot="main.conversation"] [class*="diffStat"] [class*="diffRemoved"] {
+  color: var(--dsw-alias-state-error-primary);
 }
 
 /* the user bubble is the one saturated surface in the transcript: brand tint,

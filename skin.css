@@ -47,7 +47,9 @@ body[data-ds-dark-theme] {
   --dsw-alias-bg-layer-3: rgba(252, 252, 253, calc(.60 + var(--dsw-skin-scrim, 0) * .36));
   --dsw-alias-bg-layer-4: rgba(244, 244, 246, calc(.62 + var(--dsw-skin-scrim, 0) * .34));
   --dsw-alias-bg-module-platform: rgba(253, 253, 254, calc(.42 + var(--dsw-skin-scrim, 0) * .50));
-  --dsw-alias-bg-overlay: rgba(252, 252, 253, calc(.70 + var(--dsw-skin-scrim, 0) * .28));
+  /* floating overlay surfaces (popovers, pickers) keep the shell's own fill:
+     the skin's translucent version read as washed-out dropdowns */
+  --dsw-alias-bg-overlay: var(--dsw-static-neutral-bluish-150);
   --dsw-alias-bg-multi-select: rgba(214, 214, 219, .68);
   --dsw-alias-bg-skeleton: rgba(0, 0, 0, .06);
   --dsw-alias-bg-mask-1: rgba(0, 0, 0, .16);
@@ -92,14 +94,17 @@ body[data-ds-dark-theme] {
   --dsw-alias-button-tool-bar-fill-invisible: rgba(255, 255, 255, 0);
   --dsw-alias-button-tool-bar-hover: rgba(255, 255, 255, .80);
 
-  --dsw-alias-code-diff-added: rgba(36, 138, 61, .16);
-  --dsw-alias-code-diff-deleted: rgba(215, 0, 21, .12);
-  --dsw-alias-file-diff-added-bg: rgba(52, 199, 89, .14);
-  --dsw-alias-file-diff-added-gutter: rgba(52, 199, 89, .20);
-  --dsw-alias-file-diff-added-marker: #34c759;
-  --dsw-alias-file-diff-deleted-bg: rgba(255, 59, 48, .12);
-  --dsw-alias-file-diff-deleted-gutter: rgba(255, 59, 48, .18);
-  --dsw-alias-file-diff-deleted-marker: #ff3b30;
+  /* the diff preview keeps the shell's opaque fills: a translucent add/delete
+     band let the wallpaper read through the changed lines and made the +n/-m
+     preview look dirty over the glass */
+  --dsw-alias-code-diff-added: var(--dsw-static-green-500-a08);
+  --dsw-alias-code-diff-deleted: var(--dsw-static-red-600-a08);
+  --dsw-alias-file-diff-added-bg: #e6f4e7;
+  --dsw-alias-file-diff-added-gutter: #edf7ed;
+  --dsw-alias-file-diff-added-marker: #01a241;
+  --dsw-alias-file-diff-deleted-bg: #fce6e2;
+  --dsw-alias-file-diff-deleted-gutter: #fdece9;
+  --dsw-alias-file-diff-deleted-marker: #ba2723;
 
   --dsw-alias-interactive-bg-hover: rgba(60, 60, 67, .05);
   --dsw-alias-interactive-bg-active: rgba(60, 60, 67, .09);
@@ -161,8 +166,10 @@ body[data-ds-dark-theme] {
   --dsw-specific-bubble-highlight: rgba(255, 255, 255, .88);
   --dsw-specific-input-major: rgba(255, 255, 255, .78);
   --dsw-specific-login-input: rgba(255, 255, 255, .82);
-  --dsw-specific-menu: rgba(253, 253, 254, .76);
-  --dsw-specific-selector: rgba(255, 255, 255, .60);
+  /* dropdowns / menus / popovers use the shell's own material — the skin no
+     longer re-tints their opacity, it only supplies the surrounding glass */
+  --dsw-specific-menu: var(--dsw-menu-surface-fill);
+  --dsw-specific-selector: var(--dsw-static-neutral-bluish-60);
   --dsw-specific-sidebar-fill: rgba(253, 253, 254, calc(.42 + var(--dsw-skin-scrim, 0) * .50));
   --dsw-specific-sidebar-nav-item-active: rgba(255, 255, 255, .78);
   --dsw-specific-sidebar-nav-item-active-accent: rgba(10, 124, 255, .14);
@@ -175,7 +182,7 @@ body[data-ds-dark-theme] {
   --dsw-elevation-soft: 0 8px 26px -16px rgba(0, 0, 0, .26);
   --dsw-elevation-stroke: 1px solid rgba(255, 255, 255, .55);
   --dsw-elevation-stroke-color: rgba(255, 255, 255, .55);
-  --dsw-menu-backdrop-filter: blur(24px) saturate(180%);
+  --dsw-menu-backdrop-filter: blur(40px) saturate(150%);
   --dsw-shadow-lv1: 0 1px 2px rgba(0, 0, 0, .06);
   --dsw-shadow-lv1-blur: 8px;
   --dsw-shadow-lv2: 0 10px 28px -14px rgba(0, 0, 0, .28);
@@ -191,7 +198,7 @@ body[data-ds-dark-theme] {
   --dsw-alias-bg-layer-3: rgba(44, 44, 46, calc(.50 + var(--dsw-skin-scrim, 0) * .46));
   --dsw-alias-bg-layer-4: rgba(52, 52, 54, calc(.52 + var(--dsw-skin-scrim, 0) * .46));
   --dsw-alias-bg-module-platform: rgba(38, 38, 40, calc(.44 + var(--dsw-skin-scrim, 0) * .48));
-  --dsw-alias-bg-overlay: rgba(24, 24, 26, calc(.74 + var(--dsw-skin-scrim, 0) * .24));
+  --dsw-alias-bg-overlay: var(--dsw-static-neutral-bluish-700);
   --dsw-alias-bg-multi-select: rgba(72, 72, 76, .62);
   --dsw-alias-bg-skeleton: rgba(255, 255, 255, .08);
   --dsw-alias-bg-mask-1: rgba(0, 0, 0, .20);
@@ -231,14 +238,14 @@ body[data-ds-dark-theme] {
   --dsw-alias-button-tool-bar-fill-invisible: rgba(255, 255, 255, 0);
   --dsw-alias-button-tool-bar-hover: rgba(255, 255, 255, .14);
 
-  --dsw-alias-code-diff-added: rgba(48, 209, 88, .18);
-  --dsw-alias-code-diff-deleted: rgba(255, 69, 58, .16);
-  --dsw-alias-file-diff-added-bg: rgba(48, 209, 88, .16);
-  --dsw-alias-file-diff-added-gutter: rgba(48, 209, 88, .22);
-  --dsw-alias-file-diff-added-marker: #30d158;
-  --dsw-alias-file-diff-deleted-bg: rgba(255, 69, 58, .14);
-  --dsw-alias-file-diff-deleted-gutter: rgba(255, 69, 58, .20);
-  --dsw-alias-file-diff-deleted-marker: #ff453a;
+  --dsw-alias-code-diff-added: var(--dsw-static-green-500-a12);
+  --dsw-alias-code-diff-deleted: var(--dsw-static-red-400-a12);
+  --dsw-alias-file-diff-added-bg: #1f3124;
+  --dsw-alias-file-diff-added-gutter: #132016;
+  --dsw-alias-file-diff-added-marker: #41c977;
+  --dsw-alias-file-diff-deleted-bg: #3c1f1b;
+  --dsw-alias-file-diff-deleted-gutter: #28130e;
+  --dsw-alias-file-diff-deleted-marker: #fa423e;
 
   --dsw-alias-interactive-bg-hover: rgba(255, 255, 255, .06);
   --dsw-alias-interactive-bg-active: rgba(255, 255, 255, .10);
@@ -296,8 +303,8 @@ body[data-ds-dark-theme] {
   --dsw-specific-bubble-highlight: rgba(72, 72, 74, .85);
   --dsw-specific-input-major: rgba(38, 38, 40, .82);
   --dsw-specific-login-input: rgba(42, 42, 44, .86);
-  --dsw-specific-menu: rgba(28, 28, 30, .80);
-  --dsw-specific-selector: rgba(36, 36, 38, .62);
+  --dsw-specific-menu: var(--dsw-menu-surface-fill);
+  --dsw-specific-selector: var(--dsw-static-neutral-bluish-800);
   --dsw-specific-sidebar-fill: rgba(24, 24, 26, calc(.44 + var(--dsw-skin-scrim, 0) * .48));
   --dsw-specific-sidebar-nav-item-active: rgba(58, 58, 60, .72);
   --dsw-specific-sidebar-nav-item-active-accent: rgba(10, 132, 255, .22);
@@ -309,7 +316,7 @@ body[data-ds-dark-theme] {
   --dsw-elevation-soft: 0 8px 26px -16px rgba(0, 0, 0, .50);
   --dsw-elevation-stroke: 1px solid rgba(255, 255, 255, .10);
   --dsw-elevation-stroke-color: rgba(255, 255, 255, .10);
-  --dsw-menu-backdrop-filter: blur(26px) saturate(180%);
+  --dsw-menu-backdrop-filter: blur(40px) saturate(150%);
   --dsw-shadow-lv1: 0 1px 2px rgba(0, 0, 0, .40);
   --dsw-shadow-lv1-blur: 8px;
   --dsw-shadow-lv2: 0 10px 28px -14px rgba(0, 0, 0, .62);

@@ -1,4 +1,4 @@
-﻿# iOS 液态玻璃 · iOS Liquid Glass
+# iOS 液态玻璃 · iOS Liquid Glass
 
 照 iOS 26 / macOS 的 Liquid Glass 语言给 DSH Web 做的一层皮肤。皮肤部分纯声明式资产，不含 `hooks.mjs`、不跑任何 JS；同一个仓库也以 **DSH 客户端插件**的形式发布（`dsh.bundle.patch` + `client.js`），插件那一半只往文档里塞三个 `<style>` 元素，没有依赖、没有网络请求。
 
@@ -62,11 +62,11 @@ dsh plugin --profile desktop remove dsh-skin-liquid-glass
 | 层 | 对象 | 模糊 / 饱和度 | 填充（背景遮挡 = 0 时） |
 | --- | --- | --- | --- |
 | T1 外壳 | 侧栏 + 会话区 + 右栏（三栏同一材质） | 30px · saturate 150% | .30 |
-| T2 内容 | 正文段落/标题/列表、用户气泡、代码块、表格 | 26px（气泡跟随插件滑杆） | .50 / .64 |
-| T3 控件 | 输入卡片（中心 → 边缘渐变）、chip、队列坞 | 30px | **.96 → .85** |
-| T4 浮层 | 菜单、对话框、提示条 | 40px | .95 |
+| T2 内容 | 正文段落/标题/列表、用户气泡、代码块、表格 | 26px（气泡跟随插件滑杆） | .50（标题与正文同色） |
+| T3 控件 | 输入卡片（中心 → 边缘渐变，**半透明**）、chip、队列坞 | 30px | **.66 → .50** |
+| T4 浮层 | 菜单 / 下拉（回 shell 默认材质）、对话框、提示条 | 40px（菜单默认 blur 40px · saturate 150%） | .95（对话框 / 提示条） |
 
-`--dsw-skin-scrim`（皮肤中心的**背景遮挡**滑杆）驱动每一层填充：遮挡 0 时就是上表的值，遮挡 100 时补到 0.96 左右。输入卡片中心在遮挡 0 时也有 .96，所以正文从它下面滚过时不会串字；四周 0.85 比中心更透，外面再套一层模糊光晕（`--ios-lg-halo`）当轮廓。
+`--dsw-skin-scrim`（皮肤中心的**背景遮挡**滑杆）驱动每一层填充：遮挡 0 时就是上表的值，遮挡 100 时补到 0.96 左右。输入卡片现在是**半透明**的：中心 .66、边缘 .50，模糊交给皮肤中心挂的 `[data-dsh-composer-frost]` 跟随层（本文件的 `::before` 是兜底），正文从下面滚过时被磨砂压住、不会串字，壁纸也仍然透得出来；外面再套一层模糊光晕（`--ios-lg-halo`）当轮廓。
 
 ## 这一版按反馈改了什么
 
@@ -85,6 +85,15 @@ dsh plugin --profile desktop remove dsh-skin-liquid-glass
 ### 第四轮
 
 16. **左上角圆角压平 + 最上层同色**：那个小圆角是 shell 自己画的（`[data-windows-titlebar] .BynINW_centerCol { border-radius: var(--dsh-windows-content-radius) 0 0 0 }`，Windows 专属），它在侧栏和聊天栏交界处切出一个缺口；现在只压平这一处（全屏右栏的同名角落一起），标题条仍用和按钮同一块白玻璃（不用渐变）。实测 `[class*=centerCol] rTL = 0px`（原来 16px）。
+
+### 第五轮（本轮反馈）
+
+17. **左侧栏变成悬浮的大圆角卡片**：`[class*="sidebarCol"]` 加 `margin: 8px 0 8px 8px`、`border-radius: 22px`、`overflow: hidden` 和一层柔和投影，侧栏不再贴着窗口左上角，壁纸从三边露出来，看起来是浮在壁纸上的一块玻璃（深色另给一档投影）。
+18. **右侧栏 Markdown 阅读器不再逐段铺模糊**：右栏的 md 预览本身已经挂在右栏的毛玻璃上，每个 `p` / 标题的 `::before` 又各带一层 `backdrop-filter`，长文档滚动时浏览器要逐块重算背板，滚动会一顿一顿的。现在 `[data-document-markdown]`（以及 better-sidebar 的 `editorMd` 预览）里的块级元素不带假层，正文直接落在面板玻璃上，滚动回到普通重绘。
+19. **Markdown 标题不再是白色方条**：原来 `[class*="markdown"] > h1…h6` 直接铺 `--ios-lg-plate-strong`（.64），比正文的 .50 更白、而且是方的，压在圆角的假层上就是一条白条。删掉这层填充后标题与正文共用同一块 `.50` 玻璃，圆角从 14px 提到 18px，白度与气泡一致。
+20. **所有下拉框 / 菜单回 shell 默认材质**：`--dsw-specific-menu` 回到 `var(--dsw-menu-surface-fill)`（浅 `#f8f9fa94` / 深 `#43454a73`），`--dsw-specific-selector`、`--dsw-alias-bg-overlay`、`--dsw-menu-backdrop-filter`（`blur(40px) saturate(150%)`）全部回默认值——皮肤只负责周围的玻璃，不再改浮层自己的透明度。
+21. **输入卡片改为半透明**：`--ios-lg-control-fill` 从近实心的 .96 → .85 改成 **.66 → .50**（`--dsw-skin-scrim` 继续驱动），模糊交给 `[data-dsh-composer-frost]` 跟随层；正文从下面滚过时仍被磨砂压住，但壁纸透得出来。
+22. **改动预览（+n −m）看得清了**：`--dsw-alias-file-diff-*` 与 `--dsw-alias-code-diff-*` 回到 shell 的实色（浅 `#e6f4e7` / `#fce6e2`，深 `#1f3124` / `#3c1f1b`），改动行不再半透明；对话里「已编辑 … +12 -3」也不再只在 hover 时上色，静止状态就是绿 / 红。
 
 ### 第二轮
 
@@ -113,7 +122,7 @@ dsh plugin --profile desktop remove dsh-skin-liquid-glass
 - 宿主半边 `lib/index.js` 是空的 `apply()`，只为了让 cordis 起一个 fiber；开关没有走 `dsh-settings`（第三方命名空间对 Web 端会答 `settings-not-exposed`），而是存在 `localStorage["dsh-skin-liquid-glass.enabled"]`，默认开启，也可以在浏览器里调 `setEnabled(false)` 立即收起。
 - 客户端半边 `client.js` **不 require 任何模块**（`dsh.client.inject` 为空数组）：所有选择器要么是 `--dsw-*` 令牌别名、要么是 `[class*="_suffix"]`，外壳换 hash 也不会失效。
 - 三个 `<style data-plugin-css=…>` 图层：`skin.css`（令牌层）、`patches.css`（材质层）、以及打包时生成的壁纸层（`body` 铺图 + skin.json 里的 scrim，深色走 `body[data-ds-dark-theme]`）。teardown（热重载 / 卸载 / 换 profile）时一起摘掉。
-- 壁纸是 1600×900 / q88 的再压缩版（浅色 40 KB、深色 48 KB），base64 之后整包 **165 KB**。
+- 壁纸是 1600×900 / q88 的再压缩版（浅色 40 KB、深色 48 KB），base64 之后整包 **169 KB**。
 
 ```bash
 npm run build                            # 重新生成 client.js（改完 CSS / 壁纸 / skin.json 之后必跑）
