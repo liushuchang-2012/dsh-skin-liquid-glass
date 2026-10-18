@@ -100,10 +100,12 @@ test("apply() paints the three layers and teardown retracts them", () => {
 	assert.match(tokens.textContent, /--dsw-alias-bg-base:/);
 	assert.match(tokens.textContent, /body\[data-ds-dark-theme\]/);
 	assert.match(patches.textContent, /--ios-lg-/);
-	assert.equal(wallpaper.textContent.match(/data:image\/jpeg;base64,/g).length, 2);
-	assert.match(wallpaper.textContent, /radial-gradient/);
-	assert.match(wallpaper.textContent, /body\[data-ds-dark-theme\]\{/);
-	assert.match(wallpaper.textContent, /background-size:cover !important/);
+	// v0.2.0: the canvas layer paints the procedural fog, not the photo artwork
+	assert.equal(wallpaper.textContent.match(/data:image\/jpeg;base64,/g), null);
+	assert.match(wallpaper.textContent, /body::before\{/);
+	assert.equal(wallpaper.textContent.match(/radial-gradient\(/g).length, 6);
+	assert.match(wallpaper.textContent, /body\[data-ds-dark-theme\]::before\{/);
+	assert.match(wallpaper.textContent, /position:fixed/);
 
 	assert.equal(disposers.length, 1);
 	disposers[0]();

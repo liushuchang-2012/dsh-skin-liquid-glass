@@ -168,6 +168,9 @@ function multiLineDeclarations(css) {
 			depth = Math.max(0, depth - 1);
 			continue;
 		}
+		/* an inline block on one line (`0% { background-position: 165% 0; }` in a
+		   @keyframes step) is complete — nothing wraps, nothing can be lost */
+		if (t.includes("{") && t.endsWith("}")) continue;
 		if (t.startsWith("@")) continue;
 		if (depth === 0) continue;
 		const body = t.replace(/\s*\/\*[\s\S]*?\*\/\s*$/, "").trim();

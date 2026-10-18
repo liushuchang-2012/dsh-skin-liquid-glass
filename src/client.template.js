@@ -2,9 +2,14 @@
  *
  * This file is NOT served directly: scripts/build.mjs substitutes the
  * placeholders below (package id, the two stylesheets, the two compact
- * wallpapers, and the scrim gradients declared in skin.json) and writes the
+ * artworks, and the scrim gradients declared in skin.json) and writes the
  * self-contained bundle to client.js — the artifact format the shell kernel
  * loads through window.__ModuleLoader__.load({ id, factory }).
+ *
+ * v0.2.0 note: the photo wallpaper is no longer painted. The canvas layer draws
+ * a still procedural fog (see FOG_LIGHT / FOG_DARK below); the artwork
+ * placeholders stay so the build keeps one substitution contract, and the files
+ * remain in the repo as unused artwork.
  *
  * The factory body touches nothing but the DOM: it appends the token layer
  * (skin.css), the material layer (patches.css) and one wallpaper layer, and
@@ -50,23 +55,35 @@ window.__ModuleLoader__.load({
 		};
 
 		/**
-		 * Wallpaper layer: the artwork covers the canvas, the scrim's radial
-		 * gradients sit on top of it exactly as the skin center paints them, and
-		 * the dark palette rides body[data-ds-dark-theme]. `background-attachment:
-		 * fixed` keeps the mesh steady while a panel scrolls over it.
-		 * @returns {string} the stylesheet source for the wallpaper layer.
+		 * Canvas layer: v0.2.0 paints the still fog field here instead of the
+		 * photo wallpaper. It mirrors --ios-lg-fog-image in patches.css so the
+		 * plugin form (raw <style> injection, no skin-center wrapper) and the
+		 * skin-center form paint the same canvas: three soft light pools over a
+		 * pale vertical wash, swapped for the night palette by
+		 * body[data-ds-dark-theme]. The body itself stays transparent — the fog
+		 * sits on a fixed ::before so it never scrolls with the transcript.
+		 * @returns {string} the stylesheet source for the canvas layer.
 		 */
+		const FOG_LIGHT = "radial-gradient(64% 60% at 16% 6%, rgba(255, 255, 255, .60), rgba(255, 255, 255, 0) 72%), radial-gradient(54% 50% at 86% 12%, rgba(186, 211, 243, .32), rgba(186, 211, 243, 0) 74%), radial-gradient(62% 56% at 62% 98%, rgba(194, 210, 234, .34), rgba(194, 210, 234, 0) 78%), linear-gradient(118deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .10) 48%, rgba(255, 255, 255, 0) 66%), linear-gradient(180deg, #ffffff 0%, #f2f7fe 34%, #e6ecf6 74%, #e1e8f2 100%)";
+		const FOG_DARK = "radial-gradient(64% 60% at 16% 6%, rgba(150, 176, 212, .22), rgba(150, 176, 212, 0) 74%), radial-gradient(54% 50% at 86% 12%, rgba(92, 118, 160, .22), rgba(92, 118, 160, 0) 74%), radial-gradient(62% 56% at 62% 98%, rgba(108, 126, 156, .18), rgba(108, 126, 156, 0) 78%), linear-gradient(140deg, rgba(255, 255, 255, .05) 34%, rgba(255, 255, 255, 0) 52%), linear-gradient(180deg, #0b0f15 0%, #121821 38%, #1b2029 78%, #1e242e 100%)";
+
 		function wallpaperCss() {
 			return [
 				"body{",
-				"background-image:" + MEDIA.light.scrim + ",url(" + MEDIA.light.image + ") !important;",
-				"background-size:cover !important;",
-				"background-position:center center !important;",
-				"background-repeat:no-repeat !important;",
-				"background-attachment:fixed !important;",
+				"background:transparent !important;",
 				"}",
-				"body[data-ds-dark-theme]{",
-				"background-image:" + MEDIA.dark.scrim + ",url(" + MEDIA.dark.image + ") !important;",
+				"body::before{",
+				"content:\"\";",
+				"position:fixed;",
+				"inset:0;",
+				"z-index:-2;",
+				"background-image:" + FOG_LIGHT + ";",
+				"background-size:cover;",
+				"background-repeat:no-repeat;",
+				"pointer-events:none;",
+				"}",
+				"body[data-ds-dark-theme]::before{",
+				"background-image:" + FOG_DARK + ";",
 				"}"
 			].join("\n");
 		}
