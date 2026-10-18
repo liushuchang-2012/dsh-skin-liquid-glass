@@ -49,9 +49,7 @@
      it. Without it the chat sat on the bare window sheet, so the step from the
      floating sidebar card to a see-through column never read as a transition
      (feedback: "P2 过渡还是不自然，你通过改对话区的背景来实现"). */
-  --ios-lg-pane: linear-gradient(180deg,
-    rgba(255, 255, 255, calc(.50 + var(--dsw-skin-scrim, 0) * .28)),
-    rgba(255, 255, 255, calc(.40 + var(--dsw-skin-scrim, 0) * .30)));
+  --ios-lg-pane: linear-gradient(180deg, rgba(255, 255, 255, calc(.50 + var(--dsw-skin-scrim, 0) * .28)), rgba(255, 255, 255, calc(.40 + var(--dsw-skin-scrim, 0) * .30)));
   --ios-lg-plate: rgba(255, 255, 255, calc(.46 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-strong: rgba(255, 255, 255, calc(.58 + var(--dsw-skin-scrim, 0) * .16));
   /* tables and code blocks hold dense copy, so they get a near-solid card */
@@ -61,9 +59,7 @@
      own surface now, so it can let that surface read through instead of
      competing with it (feedback: "输入框透明度太低"). Its frost comes from the
      follower mounted by the skin centre, not from a heavy fill. */
-  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%,
-    rgba(255, 255, 255, calc(.40 + var(--dsw-skin-scrim, 0) * .22)),
-    rgba(255, 255, 255, calc(.28 + var(--dsw-skin-scrim, 0) * .24)));
+  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%, rgba(255, 255, 255, calc(.40 + var(--dsw-skin-scrim, 0) * .22)), rgba(255, 255, 255, calc(.28 + var(--dsw-skin-scrim, 0) * .24)));
   --ios-lg-overlay: rgba(250, 250, 252, .94);
   --ios-lg-field: rgba(255, 255, 255, .95);
 
@@ -84,18 +80,14 @@
 body[data-ds-dark-theme] {
   --ios-lg-chrome: rgba(32, 32, 34, calc(.32 + var(--dsw-skin-scrim, 0) * .22));
   --ios-lg-sidebar-fill: rgba(255, 255, 255, calc(.07 + var(--dsw-skin-scrim, 0) * .04));
-  --ios-lg-pane: linear-gradient(180deg,
-    rgba(22, 22, 24, calc(.58 + var(--dsw-skin-scrim, 0) * .26)),
-    rgba(16, 16, 18, calc(.52 + var(--dsw-skin-scrim, 0) * .28)));
+  --ios-lg-pane: linear-gradient(180deg, rgba(22, 22, 24, calc(.58 + var(--dsw-skin-scrim, 0) * .26)), rgba(16, 16, 18, calc(.52 + var(--dsw-skin-scrim, 0) * .28)));
   --ios-lg-sidebar-blur: 18px;
   --ios-lg-sidebar-sat: 112%;
   --ios-lg-plate: rgba(42, 42, 44, calc(.46 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-strong: rgba(50, 50, 52, calc(.60 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-solid: rgba(52, 52, 54, calc(.84 + var(--dsw-skin-scrim, 0) * .08));
   --ios-lg-control: rgba(38, 38, 40, calc(.90 + var(--dsw-skin-scrim, 0) * .06));
-  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%,
-    rgba(46, 46, 48, calc(.42 + var(--dsw-skin-scrim, 0) * .22)),
-    rgba(30, 30, 32, calc(.30 + var(--dsw-skin-scrim, 0) * .24)));
+  --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%, rgba(46, 46, 48, calc(.42 + var(--dsw-skin-scrim, 0) * .22)), rgba(30, 30, 32, calc(.30 + var(--dsw-skin-scrim, 0) * .24)));
   --ios-lg-overlay: rgba(32, 32, 34, .94);
   --ios-lg-field: rgba(255, 255, 255, .93);
 
@@ -256,30 +248,7 @@ body[data-ds-dark-theme] [class*="sidebarCol"] {
 }
 
 @keyframes ios-lg-sweep {
-  0% { background-position: 165% 0; }
-  55% { background-position: -65% 0; }
-  100% { background-position: -65% 0; }
-}
-
-/* --- T2 content ----------------------------------------------------------- */
-
-/* No extra wash on the scrollport or its content. The centre column already
-   carries the same chrome plate as the two side columns, and painting a wash on
-   top of it put the conversation at a different brightness from its neighbours —
-   which is exactly what made the column seams visible. The scrollport still
-   takes no filter of its own: the fixed tooltips live inside it. */
-
-/* Prose plates grow OUTWARD from the text box instead of padding inward: the
-   plate is a ::before with negative insets, so the copy keeps the shell's own
-   text column while the frame gains breathing room on every side. Rounding used
-   to collide with the first glyph because the frame was exactly the text box.
-   The element itself carries no background and no filter — a filter here would
-   make the paragraph a containing block for the fixed tooltips inside it. */
-[class*="markdown"] > p,
-[class*="markdown"] > :where(h1, h2, h3, h4, h5, h6),
-[class*="markdown"] > blockquote,
-[class*="markdown"] > :where(ul, ol) {
-  position: relative;
+  0% { background-position: 165% 0; } 55% { background-position: -65% 0; } 100% { background-position: -65% 0; } } /* --- T2 content ----------------------------------------------------------- */ /* No extra wash on the scrollport or its content. The centre column already carries the same chrome plate as the two side columns, and painting a wash on top of it put the conversation at a different brightness from its neighbours — which is exactly what made the column seams visible. The scrollport still takes no filter of its own: the fixed tooltips live inside it. */ /* Prose plates grow OUTWARD from the text box instead of padding inward: the plate is a ::before with negative insets, so the copy keeps the shell's own text column while the frame gains breathing room on every side. Rounding used to collide with the first glyph because the frame was exactly the text box. The element itself carries no background and no filter — a filter here would make the paragraph a containing block for the fixed tooltips inside it. */ [class*="markdown"] > p, [class*="markdown"] > :where(h1, h2, h3, h4, h5, h6), [class*="markdown"] > blockquote, [class*="markdown"] > :where(ul, ol) { position: relative;
   background: none;
   box-shadow: none;
   -webkit-backdrop-filter: none;
@@ -323,20 +292,12 @@ body[data-ds-dark-theme] [class*="sidebarCol"] {
   border-radius: 20px;
   margin: 6px 0 10px;
   padding: 14px 18px 16px;
-  box-shadow:
-    0 0 0 1px var(--ios-lg-hairline),
-    var(--ios-lg-rim-soft),
-    0 14px 34px -22px rgba(0, 0, 0, .26),
-    0 3px 10px -6px rgba(0, 0, 0, .10);
+  box-shadow: 0 0 0 1px var(--ios-lg-hairline), var(--ios-lg-rim-soft), 0 14px 34px -22px rgba(0, 0, 0, .26), 0 3px 10px -6px rgba(0, 0, 0, .10);
 }
 
 body[data-ds-dark-theme] [data-chat-group-part="response"],
 body[data-ds-dark-theme] [data-chat-flow-kind="assistant/message"] {
-  box-shadow:
-    0 0 0 1px var(--ios-lg-hairline),
-    var(--ios-lg-rim-soft),
-    0 16px 38px -22px rgba(0, 0, 0, .62),
-    0 3px 10px -6px rgba(0, 0, 0, .32);
+  box-shadow: 0 0 0 1px var(--ios-lg-hairline), var(--ios-lg-rim-soft), 0 16px 38px -22px rgba(0, 0, 0, .62), 0 3px 10px -6px rgba(0, 0, 0, .32);
 }
 
 [data-chat-group-part="response"] [class*="markdown"] > p,
@@ -401,11 +362,7 @@ body[data-ds-dark-theme] [data-chat-flow-kind="assistant/message"] {
    a paint chip. Drop the two rgba() tints to grey for a fully monochrome
    transcript; the fill colour itself comes from --dsw-specific-bubble. */
 [data-slot="main.conversation"] [class*="userStack"] [class*="bubble"] {
-  background: linear-gradient(
-    180deg,
-    rgba(10, 124, 255, calc(.08 + var(--dsh-skin-bubble-alpha, .5) * .06)),
-    rgba(10, 124, 255, calc(.04 + var(--dsh-skin-bubble-alpha, .5) * .04))
-  );
+  background: linear-gradient( 180deg, rgba(10, 124, 255, calc(.08 + var(--dsh-skin-bubble-alpha, .5) * .06)), rgba(10, 124, 255, calc(.04 + var(--dsh-skin-bubble-alpha, .5) * .04)) );
   border: 1px solid rgba(10, 124, 255, .13);
   border-radius: 20px;
   box-shadow: var(--ios-lg-rim), var(--ios-lg-plate-shadow);
@@ -656,32 +613,14 @@ body::-webkit-scrollbar-thumb:hover {
 /* --- accessibility -------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  [data-dsh-surface="session-header"]::after,
-  [data-slot="conversation.session.header"]::after {
-    animation: none;
+  [data-dsh-surface="session-header"]::after, [data-slot="conversation.session.header"]::after { animation: none;
     background-image: none;
     opacity: 0;
   }
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  [data-dsh-surface="sidebar"]::before,
-  [data-slot="sidebar"]::before,
-  [class*="sidebarCol"]::before,
-  [class*="rightbarCol"]::before,
-  [data-sidebar-right-session]::before,
-  [data-dsh-surface="conversation"]::before,
-  [class*="centerCol"]::before,
-  [data-dsh-surface="session-header"]::before,
-  [data-slot="conversation.session.header"]::before,
-  [data-windows-titlebar] [data-dsh-frame]::before,
-  [class*="md-code-block"]::before,
-  [data-composer-card]::before,
-  [class*="markdown"] > p::before,
-  [class*="markdown"] > :where(h1, h2, h3, h4, h5, h6)::before,
-  [class*="markdown"] > blockquote::before,
-  [class*="markdown"] > :where(ul, ol)::before {
-    background: var(--dsw-alias-bg-layer-1);
+  [data-dsh-surface="sidebar"]::before, [data-slot="sidebar"]::before, [class*="sidebarCol"]::before, [class*="rightbarCol"]::before, [data-sidebar-right-session]::before, [data-dsh-surface="conversation"]::before, [class*="centerCol"]::before, [data-dsh-surface="session-header"]::before, [data-slot="conversation.session.header"]::before, [data-windows-titlebar] [data-dsh-frame]::before, [class*="md-code-block"]::before, [data-composer-card]::before, [class*="markdown"] > p::before, [class*="markdown"] > :where(h1, h2, h3, h4, h5, h6)::before, [class*="markdown"] > blockquote::before, [class*="markdown"] > :where(ul, ol)::before { background: var(--dsw-alias-bg-layer-1);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -705,4 +644,23 @@ body::-webkit-scrollbar-thumb:hover {
 [data-windows-titlebar] [data-sidebar-right-panel="fullscreen"] [data-dockkit-column="0"][data-dockkit-pane] {
   border-top-left-radius: 0 !important;
   corner-shape: round;
+}
+
+/* --- shell paints that do not survive this skin's plates -------------------
+   Both fixes are scoped and token-local: the global brand colour and the dark
+   palette stay untouched. */
+
+/* The toast's inline action ("撤销" / "撤销这条") paints itself with the global
+   --dsw-static-deepseek-400 (#7aaaff). On the .82-white toast plate that is
+   2.25:1. Darken the link inside the toast only, and only in light. */
+body:not([data-ds-dark-theme]) [class*="_toast_"] [class*="_action_"] {
+  color: #0a58c8;
+}
+
+/* The tool-detail hovercard keeps the shell's #2C2C2E plate in both themes and
+   paints its copy with --dsw-alias-label-primary-foreground, which the dark
+   palette resolves to #1c1c1e — 1.2:1 on that plate. Pin the token back to
+   white inside the card; the light branch already resolves to white. */
+body[data-ds-dark-theme] [class*="38jqx"] {
+  --dsw-alias-label-primary-foreground: #ffffff;
 }

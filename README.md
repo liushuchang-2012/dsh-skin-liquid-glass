@@ -83,6 +83,10 @@ DeepSeek Harness Web 客户端的一层 iOS 26 Liquid Glass 皮肤：整个界�
 
 玻璃是半透明的，一栏的色调最终等于它背后的壁纸。壁纸是中性灰，所以玻璃只会变动明度、不会变动色相；这也意味着换一张壁纸，各层的取样亮度会整体移动，`--ios-lg-chrome` 与 `--ios-lg-sidebar-fill` 需要跟着重调。仓库里的取值是按自带的两张壁纸调的：外壳与侧栏刻意贴着同一档明度（浅色 .20 对 .18），差值再大就会在窗口里读成两块不同的灰。
 
+浅色这套还顺手管住了文字：11–12px 元数据用的 `--dsw-alias-label-caption` / `label-tertiary` 从 iOS 的 `#8e8e93` 压到 `#6e6e73`（近白卡片上约 3.2:1 → 5.0:1，落在会话底板上仍约 4.5:1），markdown 占位符给到 `#757578`；toast 另补一行 `--dsw-alias-toast-label: #1c1c1e`——它的底是 .82 白，而 shell 浅色默认的 toast 文字是纯白，不补就是白字白底。深色那块也把 `--dsw-alias-toast-label` 显式写回 `#ffffff`：皮肤中心会把浅色令牌克隆到 `body` 上，不写回的话深色 toast 会拿到浅色的 `#1c1c1e`，变成深字压深底。
+
+浅色令牌块挂在 `:root, body` 两个头上（`skin.css` 的 `/* --- light --- */` 段）：shell 的主题样式把同一批别名声明在 `body` 上，插件形态是原样注入，裸 `:root` 会被 `body` 规则整片盖掉；挂到 body 才能赢，同时保留 `:root` 让 `--aion-*` 这类 html 级别名仍可解析。皮肤中心形态照旧先 scope 再克隆到 body，结果不变；深色块靠 `body[data-ds-dark-theme]` 的特异性继续覆盖。
+
 ## 安装
 
 三种方式任选一种。前两种装的是同一份皮肤，不要同时开启：同一套规则会叠两遍，壁纸也会画两次。
@@ -163,13 +167,15 @@ localStorage.setItem("dsh-skin-liquid-glass.enabled", "0");
 - **macOS / Linux**：未实测。样式里所有 `backdrop-filter` 都带 `-webkit-` 前缀，`prefers-reduced-transparency` 已覆盖，字体栈优先 `SF Pro Text` / `-apple-system` 再回落到 `Segoe UI`；但没有在真机上校对过渲染结果。
 - **不改的东西**：几何与交互。除圆角、外边距、内描边、背景填充和投影外，不动 padding、宽度与滚动结构；选择器要么是 `--dsw-*` 令牌别名，要么是 `[class*="_suffix"]` 匹配，仓库里没有 `hooks.mjs`，也不监听任何 shell 事件。
 - **视觉调校跟着壁纸走**：自带壁纸是中性灰，三栏、会话底板、回复卡片与气泡的填充都按它调过。换壁纸后各层取样亮度会整体偏移，需要重调 `--ios-lg-chrome`、`--ios-lg-sidebar-fill` 与 `--ios-lg-plate`。
+- **令牌必须单行声明**：`skin.css` / `patches.css` 里每条声明的值都要写在一行内（`linear-gradient`、`radial-gradient`、`box-shadow` 等一律不换行）。皮肤中心不是原样注入样式表，而是把裸 `:root` / `html` 块的令牌按行克隆到 `body` 上；多行值会在克隆时只剩第一行、留下一个没闭合的 `(`，浏览器随后丢弃整张样式表——皮肤就会变回一块没有材质的大白板。`npm test` 里的 CSS 完整性用例会守住这条。
 
 ## 验证
 
-`npm test` 跑 `node --test`，14 项，零依赖：
+`npm test` 跑 `node --test`，17 项，零依赖：
 
 - **bundle 生命周期（7 项）**：只注册一个以包名为 id 的 loader 条目；factory 不 require 共享模块，并导出 `apply` / `setEnabled` / `inject`；`apply()` 铺出三层 `<style>` 且 teardown 全部摘掉；重复 `apply()` 不产生重复图层；`setEnabled(false)` 摘层、写入 `"0"`、下次 `apply()` 仍保持关闭；没有 theme service、没有 `ctx.effect` 也能工作；`client.js` 保持在 400 KB 以内。
 - **打包接线（7 项）**：`package.json` 声明 `dsh.bundle.patch` 与 web 客户端且 `inject` 为空；`main`、根导出、`./client` 与 `files` 每一项都真实存在；roster patch 按包名挂载；`client.js` 与构建产物逐字节一致；`skin.json` 声明的两层、两套配色、壁纸与预览图都存在；`screenshots.json` 在 1–8 张之间；两份 README 都写了插件安装路径，`LICENSE` 存在。
+- **CSS 完整性（3 项）**：两份样式表的每条声明都在一行内；按皮肤中心的方式把 `:root` / `html` 令牌逐行克隆到 `body` 后，生成的样式表括号仍然平衡；同一份克隆结果喂给 headless Chrome 时能解析出完整规则数（`patches.css` ≥ 40，实测 73；`skin.css` ≥ 4，实测 8），而不是解析失败后只剩 2 条。没装 Chrome 的机器上第三项自动 skip，可用 `CHROME_PATH` 指定浏览器。
 
 `node scripts/build.mjs --check` 单独跑也能确认 `client.js` 没有过期；产物与源码不一致时它以非零码退出，并打印 `client.js is stale — run: npm run build`。
 
@@ -194,7 +200,7 @@ localStorage.setItem("dsh-skin-liquid-glass.enabled", "0");
 | `src/client.template.js` | 客户端 bundle 模板，含构建期占位符，不直接分发 |
 | `scripts/build.mjs` | 零依赖构建器：替换占位符并写出 `client.js`，`--check` 只做比对 |
 | `client.js` | 构建产物，`window.__ModuleLoader__.load({ id, factory })` |
-| `tests/` | `node:test` 用例：bundle 生命周期与打包接线 |
+| `tests/` | `node:test` 用例：bundle 生命周期、打包接线与 CSS 完整性 |
 | `SUBMIT.md` | 发布与投稿说明 |
 | `LICENSE` | MIT 正文 |
 

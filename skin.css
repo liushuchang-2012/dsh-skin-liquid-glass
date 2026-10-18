@@ -37,9 +37,18 @@ body[data-ds-dark-theme] {
   background-color: #000000;
 }
 
-/* --- light ---------------------------------------------------------------- */
+/* --- light ----------------------------------------------------------------
+   Mounted on `:root, body` on purpose. The shell's design-platform sheet
+   declares the same aliases on `body`; the skin-center form scopes this block
+   and clones it onto body, so a bare `:root` survives there — but the plugin
+   form injects this file raw, and then a `:root` declaration loses the
+   cascade to the shell's `body` rule (the whole light palette went inert).
+   Keeping `:root` in the list leaves html-level aliases (the --aion-* set
+   below) resolvable; the body copy wins over the shell. The dark block below
+   still wins by specificity, so nothing here leaks into dark. */
 
-:root {
+:root,
+body {
   /* surfaces: canvas, then four glass tiers (thinnest to densest) */
   --dsw-alias-bg-base: rgba(242, 242, 247, calc(.50 + var(--dsw-skin-scrim, 0) * .48));
   /* four glass tiers (thinnest to densest). The two lowest tiers are the card
@@ -117,7 +126,13 @@ body[data-ds-dark-theme] {
   --dsw-alias-interactive-bg-hover-danger: rgba(255, 59, 48, .10);
   --dsw-alias-interactive-bg-hover-solid: rgba(255, 255, 255, .72);
 
-  --dsw-alias-label-caption: #8e8e93;
+  /* iOS ships #8e8e93 for caption / tertiary ink. On the near-white glass used
+     here (.90 white cards) that is only ~3.2:1 — fine for a 17px label, not for
+     the 11-12px metadata the shell and the agent-team cards are built from. The
+     light set pushes both down to #6e6e73 (~5.0:1 on the card, still ~4.5:1 on
+     the pane), which keeps one clear step below --dsw-alias-label-secondary
+     (#48484a) instead of collapsing into it. */
+  --dsw-alias-label-caption: #6e6e73;
   --dsw-alias-label-dimmed: #aeaeb2;
   --dsw-alias-label-document-preview: #48484a;
   --dsw-alias-label-error: #d70015;
@@ -127,7 +142,7 @@ body[data-ds-dark-theme] {
   --dsw-alias-label-primary-foreground: #ffffff;
   --dsw-alias-label-primary-inverted: #ffffff;
   --dsw-alias-label-secondary: #48484a;
-  --dsw-alias-label-tertiary: #8e8e93;
+  --dsw-alias-label-tertiary: #6e6e73;
 
   --dsw-alias-markdown-citation: rgba(10, 124, 255, .10);
   --dsw-alias-markdown-code-block: rgba(242, 242, 247, .60);
@@ -135,7 +150,7 @@ body[data-ds-dark-theme] {
   --dsw-alias-markdown-code-segment-selected: rgba(10, 124, 255, .16);
   --dsw-alias-markdown-code-segment-unselected: rgba(255, 255, 255, .55);
   --dsw-alias-markdown-inline-code: rgba(60, 60, 67, .07);
-  --dsw-alias-markdown-placeholder: #8e8e93;
+  --dsw-alias-markdown-placeholder: #757578;
   --dsw-alias-markdown-tag: rgba(60, 60, 67, .10);
 
   /* iOS scrollbars are a whisper: a light thumb over an invisible track. The
@@ -159,7 +174,13 @@ body[data-ds-dark-theme] {
   --dsw-alias-state-warn-secondary: #ff9f0a;
   --dsw-alias-state-warn-tertiary: rgba(255, 159, 10, .18);
 
+  /* the light toast is a .82 white plate, but the shell paints toast copy with
+     --dsw-alias-toast-label and its light default is bluish-00 (pure white):
+     without this line the toast is white on white. The dark block restates the
+     white label, because the skin-center wrapper clones this light set onto
+     body in both themes (see the note next to --dsw-alias-toast-bg there). */
   --dsw-alias-toast-bg: rgba(255, 255, 255, .82);
+  --dsw-alias-toast-label: #1c1c1e;
   --dsw-alias-tooltip-bg: rgba(28, 28, 30, .86);
   --dsw-alias-tooltip-fg: #ffffff;
   /* 悬停卡片（工具详情等）不改成浅色：它里面的文字是按 shell 的深色底排的，
@@ -299,6 +320,10 @@ body[data-ds-dark-theme] {
   --dsw-alias-state-warn-tertiary: rgba(255, 214, 10, .20);
 
   --dsw-alias-toast-bg: rgba(28, 28, 30, .86);
+  /* the skin-center wrapper clones the light toast label onto body, so without
+     this line the dark plate would inherit #1c1c1e. This is the shell's own
+     light-theme default, stated explicitly so the clone cannot leak. */
+  --dsw-alias-toast-label: #ffffff;
   --dsw-alias-tooltip-bg: rgba(44, 44, 46, .92);
   --dsw-alias-tooltip-fg: #ffffff;
   /* 深色主题同样沿用 shell 的悬停卡片底色（见浅色段说明）。 */

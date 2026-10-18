@@ -81,6 +81,10 @@ The sidebar is a flat tinted card on that sheet: `margin: 8px` leaves the sheet 
 
 Glass is translucent, so a column's tone is whatever wallpaper sits behind it. The wallpapers are neutral grey, which means the glass only shifts in luminance, never in hue; it also means that changing the wallpaper moves every sample and `--ios-lg-chrome` and `--ios-lg-sidebar-fill` have to be retuned with it. The values in this repository are tuned to the two bundled wallpapers: the shell and the sidebar deliberately sit at the same luminance (.20 against .18 in light), because a larger difference reads as two different greys in the window.
 
+The light set also carries the text: the 11–12px metadata tokens `--dsw-alias-label-caption` / `--dsw-alias-label-tertiary` are pulled from iOS's `#8e8e93` down to `#6e6e73` (about 3.2:1 → 5.0:1 on the near-white cards, still ~4.5:1 on the conversation pane), the markdown placeholder moves to `#757578`, and the toast gets a `--dsw-alias-toast-label: #1c1c1e` of its own — its plate is .82 white while the shell's light default toast label is pure white, so without it the toast is white on white. The dark block restates that label as `#ffffff`: the skin center clones light tokens onto `body`, and without the restatement a dark toast would pick up the light `#1c1c1e` and paint dark text on a dark plate.
+
+The light token block is mounted on `:root, body` (the `/* --- light --- */` section of `skin.css`): the shell's theme sheet declares the same aliases on `body`, and the plugin form injects this file raw — a bare `:root` declaration loses that cascade outright, so the body copy is what lets the light palette apply. Keeping `:root` in the list leaves html-level aliases such as `--aion-*` resolvable. The skin-center form still scopes and clones onto `body`, so it behaves exactly as before, and the dark block keeps winning through `body[data-ds-dark-theme]` specificity.
+
 ## Installation
 
 Pick one of the three paths below. The first two install the same skin; do not enable both at once — the same rules would stack twice and the wallpaper would be painted twice.
@@ -161,13 +165,15 @@ Artwork and scrim live in `skin.json` under `contributes.backgroundMedia.{light,
 - **macOS / Linux**: not tested. Every `backdrop-filter` in the stylesheets also ships a `-webkit-` prefix, `prefers-reduced-transparency` is covered, and the font stack prefers `SF Pro Text` / `-apple-system` before falling back to `Segoe UI` — but rendering has not been checked on those systems.
 - **What is not changed**: geometry and interaction. Apart from radii, margins, inner rims, fills and shadows, padding, widths and scroll structure are untouched. Selectors are either `--dsw-*` token aliases or `[class*="_suffix"]` matches, there is no `hooks.mjs`, and no shell event is observed.
 - **Visual tuning follows the wallpaper**: the bundled wallpaper is neutral grey and the fills of the columns, prose plates and bubble are tuned to it. A different wallpaper moves every sample and requires retuning `--ios-lg-chrome`, `--ios-lg-sidebar-fill` and `--ios-lg-plate`.
+- **Tokens must be declared on one line**: every declaration value in `skin.css` / `patches.css` has to stay on a single line (`linear-gradient`, `radial-gradient`, `box-shadow` and friends included). The skin centre does not inject these stylesheets raw: it clones the bare `:root` / `html` token blocks onto `body` line by line, so a wrapped value survives only as its first line and leaves an unclosed `(` behind — the browser then discards the rest of the sheet and the skin collapses back into a plain, material-less white board. The CSS-integrity cases in `npm test` guard this.
 
 ## Verification
 
-`npm test` runs `node --test`: 14 checks, no dependencies.
+`npm test` runs `node --test`: 17 checks, no dependencies.
 
 - **Bundle lifecycle (7)**: exactly one loader entry, under the package id; the factory requires no shared module and exports `apply` / `setEnabled` / `inject`; `apply()` paints three `<style>` layers and teardown retracts all of them; a second `apply()` produces no duplicate layer; `setEnabled(false)` retracts, writes `"0"`, and the next `apply()` honours it; the bundle works without a theme service and without `ctx.effect`; `client.js` stays under 400 KB.
 - **Packaging wiring (7)**: `package.json` declares the dsh bundle patch and the web client with an empty `inject`; `main`, the root export, `./client` and every `files` entry exist on disk; the roster patch mounts the package by its own name; `client.js` is byte-for-byte the current build; `skin.json` declares both layers, both palettes and their artwork and previews; `screenshots.json` holds 1–8 entries; both READMEs document the plugin install path and `LICENSE` exists.
+- **CSS integrity (3)**: every declaration in both stylesheets sits on one line; cloning the `:root` / `html` tokens onto `body` the way the skin centre does leaves the simulated sheet bracket-balanced; that simulated sheet also parses in headless Chrome with a realistic rule count (`patches.css` ≥ 40, 73 measured; `skin.css` ≥ 4, 8 measured) instead of collapsing to the 2 rules a broken clone leaves. The third case skips itself when no Chrome is installed; set `CHROME_PATH` to point at one.
 
 `node scripts/build.mjs --check` can also be run on its own to confirm that `client.js` is not stale; it exits non-zero with `client.js is stale — run: npm run build` when the artifact no longer matches the sources.
 
@@ -192,7 +198,7 @@ The suite covers the loading contract and the packaging wiring, not the pixels: 
 | `src/client.template.js` | client bundle template with build-time placeholders, not shipped as-is |
 | `scripts/build.mjs` | zero-dependency builder: substitutes the placeholders and writes `client.js`; `--check` only compares |
 | `client.js` | build artifact, `window.__ModuleLoader__.load({ id, factory })` |
-| `tests/` | `node:test` cases: bundle lifecycle and packaging wiring |
+| `tests/` | `node:test` cases: bundle lifecycle, packaging wiring and CSS integrity |
 | `SUBMIT.md` | release and submission notes |
 | `LICENSE` | MIT text |
 
