@@ -37,6 +37,15 @@
      thickens the fill from here; the composer keeps its own higher baseline so
      the transcript never bleeds through it. */
   --ios-lg-chrome: rgba(253, 253, 253, calc(.22 + var(--dsw-skin-scrim, 0) * .20));
+  /* the left column is the thinnest pane in the window: a very low white wash,
+     a short blur and a weaker saturate so it reads as the wallpaper itself
+     (feedback: "把左边栏改的透明一点"). Blur + saturate are what made the left
+     column look greyer than the chat: the card samples the darker far-left
+     corner of the wallpaper, and 150% saturate pushed that sample down in
+     luminance. Less of both keeps the card on the wallpaper's own colour. */
+  --ios-lg-sidebar-fill: rgba(255, 255, 255, calc(.10 + var(--dsw-skin-scrim, 0) * .28));
+  --ios-lg-sidebar-blur: 14px;
+  --ios-lg-sidebar-sat: 118%;
   --ios-lg-plate: rgba(255, 255, 255, calc(.46 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-strong: rgba(255, 255, 255, calc(.64 + var(--dsw-skin-scrim, 0) * .16));
   /* tables and code blocks hold dense copy, so they get a near-solid card */
@@ -64,6 +73,9 @@
 
 body[data-ds-dark-theme] {
   --ios-lg-chrome: rgba(32, 32, 34, calc(.34 + var(--dsw-skin-scrim, 0) * .22));
+  --ios-lg-sidebar-fill: rgba(28, 28, 30, calc(.16 + var(--dsw-skin-scrim, 0) * .30));
+  --ios-lg-sidebar-blur: 18px;
+  --ios-lg-sidebar-sat: 112%;
   --ios-lg-plate: rgba(42, 42, 44, calc(.48 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-strong: rgba(50, 50, 52, calc(.64 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-solid: rgba(52, 52, 54, calc(.86 + var(--dsw-skin-scrim, 0) * .08));
@@ -138,7 +150,11 @@ body[data-ds-dark-theme] {
   --dsw-specific-sidebar-fill: transparent;
   background: transparent !important;
   border-right: none !important;
-  margin: 8px 0 8px 8px;
+  /* gaps on all four sides. With a right-hand gap of zero the card's drop
+     shadow fell straight onto the chat column's edge and read as a dark band
+     along the seam (the two corners the user circled). The card now floats
+     with wallpaper on every side and the shadow lands on wallpaper. */
+  margin: 8px;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 26px 64px -22px rgba(0, 0, 0, .40), 0 8px 24px -12px rgba(0, 0, 0, .22);
@@ -182,6 +198,20 @@ body[data-ds-dark-theme] [class*="sidebarCol"] {
   -webkit-backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
   backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
   pointer-events: none;
+}
+
+/* The left column rides its own (much thinner) material. When the plate below
+   was the shared chrome the sidebar read a few levels darker than the chat,
+   because its big blur sampled the darker far-left corner of the wallpaper and
+   150% saturate pulled that sample down. The wash, blur and saturate now come
+   from the --ios-lg-sidebar-* trio, so the card is closer to the wallpaper
+   itself (feedback: "把左边栏改的透明一点"). */
+[data-dsh-surface="sidebar"]::before,
+[data-slot="sidebar"]::before,
+[class*="sidebarCol"]::before {
+  background: var(--ios-lg-sidebar-fill);
+  -webkit-backdrop-filter: blur(var(--ios-lg-sidebar-blur)) saturate(var(--ios-lg-sidebar-sat));
+  backdrop-filter: blur(var(--ios-lg-sidebar-blur)) saturate(var(--ios-lg-sidebar-sat));
 }
 
 /* a panel nested in the right column must not stack a second plate */

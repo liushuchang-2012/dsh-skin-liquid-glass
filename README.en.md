@@ -59,7 +59,7 @@ chroma, replace the two `rgba(10, 124, 255, …)` tints in `patches.css` with gr
 
 | Tier | Applies to | Blur / saturation | Fill (background occlusion = 0) |
 | --- | --- | --- | --- |
-| T1 chrome | sidebar + conversation column + right column | 30px · 150% | .22 (sidebar is the same glass as the chat) |
+| T1 chrome | sidebar (its own thinner pane) + conversation column + right column | sidebar 14px · 118%, others 30px · 150% | sidebar **.10**, others .22 |
 | T2 content | prose plates, user bubble, code blocks, tables | 26px | .46 (headings match prose) |
 | T3 controls | composer card (centre → edge gradient, **semi-transparent**), chips, queue dock | 30px | **.66 → .50** |
 | T4 overlay | menus / dropdowns (shell default material), dialogs, toasts | 40px (menus: default 40px · 150%) | .95 (dialogs / toasts) |
@@ -107,6 +107,21 @@ still reads through.
   dark; prose plates `--ios-lg-plate` .50 → **.46** light and .54 → **.48** dark.
   Columns, header and prose thin out together; the composer and dialogs keep their
   denser tier so text never bleeds through.
+
+## Thinner left sidebar (round 8)
+
+- **The left column has its own thinner pane**: all three columns used to share
+  `--ios-lg-chrome` (.22 + `blur(30px) saturate(150%)`), but the sidebar card floats
+  over the **far-left** strip of the wallpaper, which is darker; a 30px blur smears
+  that corner across the whole card and 150% saturation pushes the sample further
+  down, so the sidebar stayed a grade greyer than the chat even with the same white
+  fill. It now uses `--ios-lg-sidebar-fill / -blur / -sat`: light **.10** fill,
+  `blur(14px) saturate(118%)` (dark .16 · 18px · 112%) — the card is mostly the
+  wallpaper itself with a very faint veil.
+- **Gap on all four sides**: `margin: 8px 0 8px 8px` → **`margin: 8px`**. The old
+  zero right-hand gap put the drop shadow straight onto the chat column's left edge,
+  which is the band the user circled at the card's two rounded corners; the shadow
+  now lands on wallpaper.
 
 ## Reading surfaces round ("these two are unreadable")
 
