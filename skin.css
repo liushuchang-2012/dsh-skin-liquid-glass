@@ -42,10 +42,15 @@ body[data-ds-dark-theme] {
 :root {
   /* surfaces: canvas, then four glass tiers (thinnest to densest) */
   --dsw-alias-bg-base: rgba(242, 242, 247, calc(.50 + var(--dsw-skin-scrim, 0) * .48));
-  --dsw-alias-bg-layer-1: rgba(255, 255, 255, calc(.56 + var(--dsw-skin-scrim, 0) * .40));
-  --dsw-alias-bg-layer-2: rgba(252, 252, 253, calc(.58 + var(--dsw-skin-scrim, 0) * .38));
-  --dsw-alias-bg-layer-3: rgba(252, 252, 253, calc(.60 + var(--dsw-skin-scrim, 0) * .36));
-  --dsw-alias-bg-layer-4: rgba(244, 244, 246, calc(.62 + var(--dsw-skin-scrim, 0) * .34));
+  /* four glass tiers (thinnest to densest). The two lowest tiers are the card
+     fills the shell uses for reading surfaces (changed-files card, diff hover
+     preview, floating dock windows); they are kept near-opaque on purpose —
+     with a glassy fill the transcript ghosted through the diff text, which is
+     unreadable. The chrome itself stays transparent. */
+  --dsw-alias-bg-layer-1: rgba(255, 255, 255, calc(.90 + var(--dsw-skin-scrim, 0) * .08));
+  --dsw-alias-bg-layer-2: rgba(252, 252, 253, calc(.90 + var(--dsw-skin-scrim, 0) * .08));
+  --dsw-alias-bg-layer-3: rgba(252, 252, 253, calc(.84 + var(--dsw-skin-scrim, 0) * .12));
+  --dsw-alias-bg-layer-4: rgba(244, 244, 246, calc(.80 + var(--dsw-skin-scrim, 0) * .16));
   --dsw-alias-bg-module-platform: rgba(253, 253, 254, calc(.42 + var(--dsw-skin-scrim, 0) * .50));
   /* floating overlay surfaces (popovers, pickers) keep the shell's own fill:
      the skin's translucent version read as washed-out dropdowns */
@@ -193,10 +198,10 @@ body[data-ds-dark-theme] {
 
 body[data-ds-dark-theme] {
   --dsw-alias-bg-base: rgba(0, 0, 0, calc(.54 + var(--dsw-skin-scrim, 0) * .44));
-  --dsw-alias-bg-layer-1: rgba(28, 28, 30, calc(.46 + var(--dsw-skin-scrim, 0) * .46));
-  --dsw-alias-bg-layer-2: rgba(36, 36, 38, calc(.48 + var(--dsw-skin-scrim, 0) * .46));
-  --dsw-alias-bg-layer-3: rgba(44, 44, 46, calc(.50 + var(--dsw-skin-scrim, 0) * .46));
-  --dsw-alias-bg-layer-4: rgba(52, 52, 54, calc(.52 + var(--dsw-skin-scrim, 0) * .46));
+  --dsw-alias-bg-layer-1: rgba(28, 28, 30, calc(.86 + var(--dsw-skin-scrim, 0) * .10));
+  --dsw-alias-bg-layer-2: rgba(36, 36, 38, calc(.86 + var(--dsw-skin-scrim, 0) * .10));
+  --dsw-alias-bg-layer-3: rgba(44, 44, 46, calc(.80 + var(--dsw-skin-scrim, 0) * .14));
+  --dsw-alias-bg-layer-4: rgba(52, 52, 54, calc(.76 + var(--dsw-skin-scrim, 0) * .18));
   --dsw-alias-bg-module-platform: rgba(38, 38, 40, calc(.44 + var(--dsw-skin-scrim, 0) * .48));
   --dsw-alias-bg-overlay: var(--dsw-static-neutral-bluish-700);
   --dsw-alias-bg-multi-select: rgba(72, 72, 76, .62);

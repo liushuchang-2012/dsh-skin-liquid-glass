@@ -108,6 +108,21 @@ still reads through.
   Columns, header and prose thin out together; the composer and dialogs keep their
   denser tier so text never bleeds through.
 
+## Reading surfaces round ("these two are unreadable")
+
+- **Changed-files card**: `.kuvljq_card` is filled by `--dsw-alias-bg-layer-1`, which
+  the glass pass had thinned to .56 — transcript text showed through the card. Layers
+  1/2 are now **.90** light / **.86** dark (3/4 slightly lower), so cards, floating
+  windows and diff panes read as solid content while the chrome stays at .22.
+- **Diff hover preview**: the preview sits on the shell's HoverCard, which carries a
+  dark `#2C2C2E` base; the preview pane's translucent layer let that base ghost
+  through. `[class*="preview"]:has(> [data-changes-hover-preview])` and
+  `[data-changes-hover-preview]` now paint `--ios-lg-overlay` (.95 both palettes) with
+  a rim and shadow.
+- **Floating windows**: `[data-dockkit-host="float"] > section` and the changed-files
+  card get `--ios-lg-rim` + `--ios-lg-shadow`, so overlays no longer dissolve into
+  the composer/transcript behind them.
+
 ## Two invariants
 
 1. **Never put `backdrop-filter` on a box that has `position: fixed` descendants.**
@@ -148,7 +163,7 @@ still reads through.
   `skin.json`, dark palette via `body[data-ds-dark-theme]`) — all removed on
   teardown.
 - The baked wallpapers are 1600×900 / q88 re-encodes (40 KB light, 48 KB dark);
-  the whole bundle is **169 KB**.
+  the whole bundle is **171 KB**.
 
 ```bash
 npm run build                            # regenerate client.js after CSS / artwork / skin.json edits

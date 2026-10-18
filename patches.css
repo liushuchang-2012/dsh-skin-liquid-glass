@@ -493,6 +493,29 @@ body:not(:has([data-dsh-composer-frost])) [data-composer-card]::before {
   box-shadow: var(--ios-lg-rim-soft), var(--ios-lg-shadow);
 }
 
+/* The changed-files card, its per-file diff hover preview and the dockkit
+   floating window are reading surfaces: the shell backs them with
+   --dsw-alias-bg-layer-1/2, which the skin keeps near-opaque in skin.css.
+   On top of that they get the same rim + drop shadow as the other panes, so
+   they read as windows instead of dissolved washes over the transcript.
+   The hover preview sits on the shell's dark hovercard base; without an
+   explicit fill the dark base ghosts through and the path text disappears
+   (the "这两个看不清" report). */
+[data-changed-files],
+[data-dockkit-host="float"] > section {
+  box-shadow: var(--ios-lg-rim), var(--ios-lg-shadow);
+}
+
+[class*="preview"]:has(> [data-changes-hover-preview]) {
+  background: var(--ios-lg-overlay) !important;
+  box-shadow: var(--ios-lg-rim), var(--ios-lg-shadow-lift) !important;
+}
+
+[data-changes-hover-preview] {
+  background: var(--ios-lg-overlay);
+  border-radius: var(--dsw-radius-lg);
+}
+
 [class*="toast"] {
   box-shadow: var(--ios-lg-rim-soft), var(--ios-lg-shadow);
   -webkit-backdrop-filter: blur(var(--ios-lg-blur-overlay)) saturate(var(--ios-lg-sat));

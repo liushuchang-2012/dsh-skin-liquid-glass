@@ -101,6 +101,12 @@ dsh plugin --profile desktop remove dsh-skin-liquid-glass
 24. **投影加大、圆角加到 24px**：`0 26px 64px -22px rgba(0,0,0,.40)` + `0 8px 24px -12px rgba(0,0,0,.22)`（深色 `0 28px 70px … .72`），卡片左侧 8px 缝隙里的取色从 225 掉到 207，能明显看出它浮在壁纸上。
 25. **整体更透**：`--ios-lg-chrome` 浅色 .30 → **.22**、深色 .44 → **.34**；正文假层 `--ios-lg-plate` 浅色 .50 → **.46**、深色 .54 → **.48**。三栏、标题条和正文一起变透，壁纸纹理在玻璃后面更清楚，符合液态玻璃的观感；输入卡片和对话框保持各自更高的一档，文字不会串。
 
+### 第七轮（阅读面回实）
+
+26. **「已编辑 N 个文件」卡片看得清了**：这张卡铺的是 `--dsw-alias-bg-layer-1`（`.kuvljq_card`），上一版把这一层做成 .56 的玻璃，卡片后面的会话文字会透上来。现在浅色层 1/层 2 提到 **.90**、深色提到 **.86**（层 3/4 略低），卡片、浮窗、diff 卡片这类「要读的内容面」重新接近实色；外壳的 `--ios-lg-chrome` 仍是 .22，整屏通透感不变。
+27. **diff 悬浮预览不再是深色鬼影**：单文件改动的 hover 预览挂在 shell 的 HoverCard 上，它自带一层深色底 `#2C2C2E`，而预览面 `._preview_*` 用的是半透明 `bg-layer-1`，深色底透上来后路径和 diff 一起发灰。现在 `[class*="preview"]:has(> [data-changes-hover-preview])` 与 `[data-changes-hover-preview]` 直接铺 `--ios-lg-overlay`（浅 .95 / 深 .95），并补上内描边和投影。
+28. **浮动窗口有窗格感**：dockkit 的 `[data-dockkit-host="float"] > section` 与改动卡片一起补了 `--ios-lg-rim` + `--ios-lg-shadow`，浮层不会再和背后的输入框/正文糊在一起。
+
 ### 第二轮
 
 1. **灰阶再浅一档**：`skin.css` 第二轮把浅色边框/分层又降一档（`#f2f2f7` / `#e8e8ec` / 白），外壳基色走 `rgba(253,253,253,…)`，不再是中灰。
@@ -128,7 +134,7 @@ dsh plugin --profile desktop remove dsh-skin-liquid-glass
 - 宿主半边 `lib/index.js` 是空的 `apply()`，只为了让 cordis 起一个 fiber；开关没有走 `dsh-settings`（第三方命名空间对 Web 端会答 `settings-not-exposed`），而是存在 `localStorage["dsh-skin-liquid-glass.enabled"]`，默认开启，也可以在浏览器里调 `setEnabled(false)` 立即收起。
 - 客户端半边 `client.js` **不 require 任何模块**（`dsh.client.inject` 为空数组）：所有选择器要么是 `--dsw-*` 令牌别名、要么是 `[class*="_suffix"]`，外壳换 hash 也不会失效。
 - 三个 `<style data-plugin-css=…>` 图层：`skin.css`（令牌层）、`patches.css`（材质层）、以及打包时生成的壁纸层（`body` 铺图 + skin.json 里的 scrim，深色走 `body[data-ds-dark-theme]`）。teardown（热重载 / 卸载 / 换 profile）时一起摘掉。
-- 壁纸是 1600×900 / q88 的再压缩版（浅色 40 KB、深色 48 KB），base64 之后整包 **169 KB**。
+- 壁纸是 1600×900 / q88 的再压缩版（浅色 40 KB、深色 48 KB），base64 之后整包 **171 KB**。
 
 ```bash
 npm run build                            # 重新生成 client.js（改完 CSS / 壁纸 / skin.json 之后必跑）
