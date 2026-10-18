@@ -3,11 +3,18 @@
   "id": "ios-liquid-glass",
   "name": "iOS 液态玻璃",
   "nameEn": "iOS Liquid Glass",
-  "version": "0.2.1",
+  "version": "0.2.7",
   "author": "liushuchang-2012",
-  "tagline": "iOS 26 液态玻璃 · 静态雾场 · 一层磨砂 · 悬浮玻璃侧栏",
-  "description": "按 iOS 26 的 Liquid Glass 语言重做的材质层：背景不再用照片壁纸，而是一层自己画的静态雾场（左上偏暖白、右上淡蓝、右下冷灰三团渐变铺在 shell 之下，深浅各一套），所以玻璃有东西可折射、又不会随壁纸失效而变白板。整窗只磨一次（blur 40px / saturate 180%），三栏透明叠在这一层上；左侧栏是一块 24px 圆角、blur 28px 的悬浮玻璃卡，带高光内描边、暗边与一层大软投影；回复内容、代码块、菜单与浮层按层级逐档加深，输入栏是最薄的一层。所有填充跟随皮肤中心的「背景遮挡」滑杆：遮挡 0 时雾场最露、玻璃最透，推到 100 时面板补到近实底。强调色只有 iOS 系统蓝；整屏唯一动效是标题栏上一道 21 秒一圈的镜面高光，「减少动态效果」下自动停止。浅深两套的小字与装饰色（时间戳、diff 计数、错误色等）都按最暗雾底校到 4.5:1 以上。",
-  "tags": ["ios", "liquid-glass", "frosted", "glass", "translucent", "dark-mode"],
+  "tagline": "白到灰到淡蓝的静态雾场 · 一层磨砂 · 悬浮玻璃侧栏",
+  "description": "一层自绘的静态雾场铺在 shell 之下：顶部纯白、中段转灰、底部一抹淡蓝，整窗只磨一次（blur 40px），三栏透明叠在上面，所以左右不会出现色差。左侧栏是一块 24px 圆角的悬浮玻璃卡（22% 白纱 + blur 40px + 细描边 + 投影），回复是一颗气泡、你发的消息带投影，代码块与输入框是仅有的两处实心表面。",
+  "tags": [
+    "ios",
+    "liquid-glass",
+    "frosted",
+    "glass",
+    "translucent",
+    "dark-mode"
+  ],
   "accent": "#0a7cff",
   "order": 1,
   "preview": {
@@ -16,18 +23,6 @@
   },
   "contributes": {
     "stylesheet": "skin.css",
-    "patches": "patches.css",
-    "backgroundMedia": {
-      "light": {
-        "type": "image",
-        "src": "assets/ios-liquid-light.jpg",
-        "scrim": "radial-gradient(120% 90% at 16% 8%, rgba(255,255,255,.34), rgba(255,255,255,0) 55%), radial-gradient(90% 80% at 88% 100%, rgba(122,126,255,.20), rgba(122,126,255,0) 62%), linear-gradient(180deg, rgba(120,170,255,.10), rgba(255,255,255,0) 44%, rgba(20,36,68,.10))"
-      },
-      "dark": {
-        "type": "image",
-        "src": "assets/ios-liquid-dark.jpg",
-        "scrim": "radial-gradient(110% 80% at 18% 10%, rgba(120,170,255,.20), rgba(0,0,0,0) 58%), radial-gradient(80% 70% at 90% 96%, rgba(255,96,176,.14), rgba(0,0,0,0) 62%), linear-gradient(180deg, rgba(0,0,0,.26), rgba(0,0,0,.04) 42%, rgba(0,0,0,.36))"
-      }
-    }
+    "patches": "patches.css"
   }
 }

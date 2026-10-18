@@ -52,16 +52,14 @@ test("client.js is byte-for-byte the current build", () => {
 	assert.match(built.stdout, /up to date/);
 });
 
-test("skin.json declares both layers, both palettes and their artwork", () => {
+test("skin.json declares both layers and both palettes", () => {
 	const manifest = JSON.parse(read("skin.json"));
 	assert.equal(manifest.skinManifestVersion, 2);
 	assert.equal(manifest.id, "ios-liquid-glass");
 	assert.ok(existsSync(abs(manifest.contributes.stylesheet)), "stylesheet must exist");
 	assert.ok(existsSync(abs(manifest.contributes.patches)), "patches must exist");
+	assert.equal(manifest.contributes.backgroundMedia, undefined, "the skin paints its own background");
 	for (const mode of ["light", "dark"]) {
-		const media = manifest.contributes.backgroundMedia[mode];
-		assert.ok(existsSync(abs(media.src)), mode + " artwork must exist");
-		assert.match(media.scrim, /gradient\(/, mode + " scrim must be a gradient list");
 		assert.ok(existsSync(abs(manifest.preview[mode])), mode + " preview must exist");
 	}
 });

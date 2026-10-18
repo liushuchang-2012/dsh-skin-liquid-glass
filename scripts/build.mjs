@@ -1,22 +1,11 @@
 #!/usr/bin/env node
 /* dsh-skin-liquid-glass — bundle builder (zero dependencies).
  *
- * Substitutes the placeholders in src/client.template.js with the real
- * stylesheets, the compact wallpapers and the scrim gradients declared in
- * skin.json, then writes the self-contained client.js the shell loads.
+ * Inlines the two stylesheets into src/client.template.js and writes the
+ * self-contained client.js that the shell loads.
  *
  *   node scripts/build.mjs           # write client.js
  *   node scripts/build.mjs --check   # fail when client.js is stale (CI)
- *
- * The compact wallpapers (assets/plugin-wallpaper-{light,dark}.jpg) are
- * 1600x900 quality-88 re-encodes of the full-size artwork: the mesh is a soft
- * gradient, so the pair lands under 90 KB and base64 adds only ~120 KB to the
- * bundle. Regenerate them with Pillow if the artwork changes:
- *
- *   from PIL import Image
- *   im = Image.open("assets/ios-liquid-light.jpg").resize((1600, 900), Image.LANCZOS)
- *   im.convert("RGB").save("assets/plugin-wallpaper-light.jpg", "JPEG",
- *                          quality=88, optimize=True, progressive=True)
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -25,32 +14,14 @@ import { fileURLToPath } from "node:url";
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const abs = (p) => join(root, p);
 const read = (p) => readFileSync(abs(p), "utf8");
-const bytes = (p) => readFileSync(abs(p));
 
 const pkg = JSON.parse(read("package.json"));
 const manifest = JSON.parse(read("skin.json"));
-const media = manifest.contributes.backgroundMedia;
-
-/** data: URI for one artwork file. */
-const dataUri = (path, mime) => "data:" + mime + ";base64," + bytes(path).toString("base64");
-
-const WALLPAPERS = {
-	light: "assets/plugin-wallpaper-light.jpg",
-	dark: "assets/plugin-wallpaper-dark.jpg"
-};
-
-for (const path of Object.values(WALLPAPERS)) {
-	if (!readFileSync(abs(path)).byteLength) throw new Error("empty artwork: " + path);
-}
 
 const replacements = {
 	__PKG_NAME__: JSON.stringify(pkg.name),
 	__SKIN_CSS__: JSON.stringify(read(manifest.contributes.stylesheet)),
-	__PATCHES_CSS__: JSON.stringify(read(manifest.contributes.patches)),
-	__WALLPAPER_LIGHT__: JSON.stringify(dataUri(WALLPAPERS.light, "image/jpeg")),
-	__WALLPAPER_DARK__: JSON.stringify(dataUri(WALLPAPERS.dark, "image/jpeg")),
-	__SCRIM_LIGHT__: JSON.stringify(media.light.scrim),
-	__SCRIM_DARK__: JSON.stringify(media.dark.scrim)
+	__PATCHES_CSS__: JSON.stringify(read(manifest.contributes.patches))
 };
 
 let source = read("src/client.template.js");
@@ -74,6 +45,6 @@ if (process.argv.includes("--check")) {
 	console.log(
 		"client.js  " + Buffer.byteLength(bundle) + " B  (" +
 		Object.keys(replacements).length + " placeholders, " +
-		manifest.contributes.stylesheet + " + " + manifest.contributes.patches + " + 2 wallpapers)"
+		manifest.contributes.stylesheet + " + " + manifest.contributes.patches + ")"
 	);
 }

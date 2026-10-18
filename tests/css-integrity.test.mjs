@@ -26,7 +26,7 @@ const SCOPE = `html[data-dsh-skin="${SKIN_ID}"]`;
 
 const FILES = {
 	"skin.css": { minRules: 4 },
-	"patches.css": { minRules: 40 }
+	"patches.css": { minRules: 12 }
 };
 
 const read = (name) => readFileSync(join(root, name), "utf8");

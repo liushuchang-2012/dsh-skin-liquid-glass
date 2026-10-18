@@ -18,7 +18,7 @@ const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 const IDS = {
 	tokens: pkg.name + "/skin.css",
 	patches: pkg.name + "/patches.css",
-	wallpaper: pkg.name + "/wallpaper.css"
+
 };
 
 /** Minimal DOM: head > style[data-plugin-css], nothing else. */
@@ -86,26 +86,21 @@ test("the factory requires no shared module and exposes apply/inject", () => {
 	assert.equal(exportsObject.inject.length, 0);
 });
 
-test("apply() paints the three layers and teardown retracts them", () => {
+test("apply() paints the both layers and teardown retracts them", () => {
 	const { loaded, dom } = load();
 	const exportsObject = loaded[0].factory(() => {});
 	const disposers = [];
 	// ctx.effect(setup) calls setup() and registers the function it returns.
 	exportsObject.apply({ effect: (setup) => disposers.push(setup()) });
 
-	assert.deepEqual(dom.head.children.map((node) => node.dataset.pluginCss), [IDS.tokens, IDS.patches, IDS.wallpaper]);
+	assert.deepEqual(dom.head.children.map((node) => node.dataset.pluginCss), [IDS.tokens, IDS.patches]);
 	for (const node of dom.head.children) assert.equal(node.dataset.plugin, pkg.name);
 
-	const [tokens, patches, wallpaper] = dom.head.children;
+	const [tokens, patches] = dom.head.children;
 	assert.match(tokens.textContent, /--dsw-alias-bg-base:/);
 	assert.match(tokens.textContent, /body\[data-ds-dark-theme\]/);
-	assert.match(patches.textContent, /--ios-lg-/);
-	// v0.2.0: the canvas layer paints the procedural fog, not the photo artwork
-	assert.equal(wallpaper.textContent.match(/data:image\/jpeg;base64,/g), null);
-	assert.match(wallpaper.textContent, /body::before\{/);
-	assert.equal(wallpaper.textContent.match(/radial-gradient\(/g).length, 6);
-	assert.match(wallpaper.textContent, /body\[data-ds-dark-theme\]::before\{/);
-	assert.match(wallpaper.textContent, /position:fixed/);
+	assert.match(patches.textContent, /--lg-/);
+	assert.match(patches.textContent, /backdrop-filter/);
 
 	assert.equal(disposers.length, 1);
 	disposers[0]();
@@ -117,8 +112,8 @@ test("apply() is idempotent and leaves no duplicate layer", () => {
 	const exportsObject = loaded[0].factory(() => {});
 	exportsObject.apply({});
 	exportsObject.apply({});
-	assert.equal(dom.head.children.length, 3);
-	assert.equal(new Set(dom.head.children.map((node) => node.dataset.pluginCss)).size, 3);
+	assert.equal(dom.head.children.length, 2);
+	assert.equal(new Set(dom.head.children.map((node) => node.dataset.pluginCss)).size, 2);
 });
 
 test("setEnabled(false) retracts, persists, and the next apply honours it", () => {
@@ -126,7 +121,7 @@ test("setEnabled(false) retracts, persists, and the next apply honours it", () =
 	const first = load({ storage });
 	const firstExports = first.loaded[0].factory(() => {});
 	firstExports.apply({});
-	assert.equal(first.dom.head.children.length, 3);
+	assert.equal(first.dom.head.children.length, 2);
 
 	firstExports.setEnabled(false);
 	assert.equal(first.dom.head.children.length, 0);
@@ -140,7 +135,7 @@ test("setEnabled(false) retracts, persists, and the next apply honours it", () =
 test("works without a theme service and survives a missing effect()", () => {
 	const { loaded, dom } = load();
 	assert.doesNotThrow(() => loaded[0].factory(() => {}).apply());
-	assert.equal(dom.head.children.length, 3);
+	assert.equal(dom.head.children.length, 2);
 });
 
 test("the bundle stays small enough to ship inline", () => {

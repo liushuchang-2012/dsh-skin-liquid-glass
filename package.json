@@ -1,7 +1,7 @@
 {
   "name": "dsh-skin-liquid-glass",
-  "version": "0.2.1",
-  "description": "iOS 26 Liquid Glass skin for the DeepSeek Harness Web UI — a self-drawn static fog field instead of a photo wallpaper, one frost sheet over the whole window, a floating 24px glass sidebar, system blue as the only accent, light and dark palettes both checked for AA text contrast. Ships as a DSH client plugin with no host-side behaviour and no dependency.",
+  "version": "0.2.7",
+  "description": "iOS 26 Liquid Glass skin for DeepSeek Harness: one shared white-grey-blue fog, a single 40px frost over the whole window, a floating glass sidebar and reply bubbles.",
   "type": "module",
   "main": "lib/index.js",
   "license": "MIT",
@@ -57,7 +57,6 @@
     "skin.css",
     "patches.css",
     "skin.json",
-    "assets",
     "preview",
     "README.md",
     "README.en.md",

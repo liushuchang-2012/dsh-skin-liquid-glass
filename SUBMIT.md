@@ -29,14 +29,13 @@ git clone https://github.com/liushuchang-2012/dsh-skin-liquid-glass.git `
 dsh plugin --profile web add github:liushuchang-2012/dsh-skin-liquid-glass
 ```
 
-插件自己注入三层 `<style>`（玻璃/token 层、结构 patch 层、壁纸层），关闭时只删这三层，
-不依赖任何共享模块（`dsh.client.inject` 为空），整包 165 KB、零依赖。
+插件自己注入两层 `<style>`（token 层、材质层），关闭时只删这两层，
+不依赖任何共享模块（`dsh.client.inject` 为空），整包 33 KB、零依赖。
 
 ## 2. 仓库（已发布）
 
 源码仓库：<https://github.com/liushuchang-2012/dsh-skin-liquid-glass> —— 公开、MIT、
-根目录直接就是皮肤文件（`skin.json` / `skin.css` / `patches.css` / `assets/` /
-`preview/` + `README.md` / `README.en.md` / `LICENSE`），因此本目录可以当工作区直接改。
+根目录直接就是皮肤文件（`skin.json` / `skin.css` / `patches.css` /`preview/` + `README.md` / `README.en.md` / `LICENSE`），因此本目录可以当工作区直接改。
 
 本机工具链（2026-10-15 已装好，都在机器上，不依赖 PATH 里的旧进程）：
 
@@ -64,10 +63,10 @@ git push
   `category: theme`（README 由仓库脚本生成，不手工改，也不需要在 PR 里带）。
 - 仓库侧前置条件都已满足：根 `package.json` 声明 `dsh.bundle`（这就是「可 `dsh plugin add`」的依据）、
   仓库加了 `dsh-plugin` topic、仓库创建已满 1 天、根目录有 `screenshots.json`（相对路径指向仓库内图片）。
-- 投稿前本地跑过的验证：`npm test` → 14/14（零依赖，7 个 bundle 生命周期 + 7 个 manifest/接线）、
+- 投稿前本地跑过的验证：`npm test` → 17/17（零依赖，bundle 生命周期 + manifest/发布清单 + CSS 单行/克隆完整性）、
   `node scripts/build.mjs --check` → 已提交的 `client.js` 与构建产物一致、
-  实机按 `window.__ModuleLoader__.load` 真实形态加载过一次（三层 `<style>` 注入成功，
-  把皮肤中心那几层拿掉后 token/壁纸仍然生效，`setEnabled(false)` 只删掉自己的三层）。
+  实机按 `window.__ModuleLoader__.load` 真实形态加载过一次（两层 `<style>` 注入成功，
+  把皮肤中心那几层拿掉后 token/材质仍然生效，`setEnabled(false)` 只删掉自己的两层）。
 
 可选后续（都不影响本次收录）：
 
