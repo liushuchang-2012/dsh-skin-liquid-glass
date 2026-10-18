@@ -61,8 +61,8 @@ dsh plugin --profile desktop remove dsh-skin-liquid-glass
 
 | 层 | 对象 | 模糊 / 饱和度 | 填充（背景遮挡 = 0 时） |
 | --- | --- | --- | --- |
-| T1 外壳 | 侧栏 + 会话区 + 右栏（三栏同一材质） | 30px · saturate 150% | .30 |
-| T2 内容 | 正文段落/标题/列表、用户气泡、代码块、表格 | 26px（气泡跟随插件滑杆） | .50（标题与正文同色） |
+| T1 外壳 | 侧栏 + 会话区 + 右栏（三栏同一材质） | 30px · saturate 150% | .22（侧栏与聊天同色） |
+| T2 内容 | 正文段落/标题/列表、用户气泡、代码块、表格 | 26px（气泡跟随插件滑杆） | .46（标题与正文同色） |
 | T3 控件 | 输入卡片（中心 → 边缘渐变，**半透明**）、chip、队列坞 | 30px | **.66 → .50** |
 | T4 浮层 | 菜单 / 下拉（回 shell 默认材质）、对话框、提示条 | 40px（菜单默认 blur 40px · saturate 150%） | .95（对话框 / 提示条） |
 
@@ -94,6 +94,12 @@ dsh plugin --profile desktop remove dsh-skin-liquid-glass
 20. **所有下拉框 / 菜单回 shell 默认材质**：`--dsw-specific-menu` 回到 `var(--dsw-menu-surface-fill)`（浅 `#f8f9fa94` / 深 `#43454a73`），`--dsw-specific-selector`、`--dsw-alias-bg-overlay`、`--dsw-menu-backdrop-filter`（`blur(40px) saturate(150%)`）全部回默认值——皮肤只负责周围的玻璃，不再改浮层自己的透明度。
 21. **输入卡片改为半透明**：`--ios-lg-control-fill` 从近实心的 .96 → .85 改成 **.66 → .50**（`--dsw-skin-scrim` 继续驱动），模糊交给 `[data-dsh-composer-frost]` 跟随层；正文从下面滚过时仍被磨砂压住，但壁纸透得出来。
 22. **改动预览（+n −m）看得清了**：`--dsw-alias-file-diff-*` 与 `--dsw-alias-code-diff-*` 回到 shell 的实色（浅 `#e6f4e7` / `#fce6e2`，深 `#1f3124` / `#3c1f1b`），改动行不再半透明；对话里「已编辑 … +12 -3」也不再只在 hover 时上色，静止状态就是绿 / 红。
+
+### 第六轮（参照 Ultronen/dsh-liquid-glass 再调）
+
+23. **侧栏和聊天改成同一块玻璃**：侧栏里 shell 自己那层 `--dsw-specific-sidebar-fill` 才是上一版两块区域颜色不一样的原因——它在共用的 `--ios-lg-chrome` 假层上又叠了一层更暖的白。现在只在 `[class*="sidebarCol"]` 内部把这个令牌置为 `transparent`（Windows 标题条/外框不在此作用域，不受影响），侧栏与聊天栏的取样色差从约 9 级降到 2 级（浅色实测 `sidebar_empty 237 → 226`、`chat_empty 228`）。
+24. **投影加大、圆角加到 24px**：`0 26px 64px -22px rgba(0,0,0,.40)` + `0 8px 24px -12px rgba(0,0,0,.22)`（深色 `0 28px 70px … .72`），卡片左侧 8px 缝隙里的取色从 225 掉到 207，能明显看出它浮在壁纸上。
+25. **整体更透**：`--ios-lg-chrome` 浅色 .30 → **.22**、深色 .44 → **.34**；正文假层 `--ios-lg-plate` 浅色 .50 → **.46**、深色 .54 → **.48**。三栏、标题条和正文一起变透，壁纸纹理在玻璃后面更清楚，符合液态玻璃的观感；输入卡片和对话框保持各自更高的一档，文字不会串。
 
 ### 第二轮
 

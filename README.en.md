@@ -59,8 +59,8 @@ chroma, replace the two `rgba(10, 124, 255, …)` tints in `patches.css` with gr
 
 | Tier | Applies to | Blur / saturation | Fill (background occlusion = 0) |
 | --- | --- | --- | --- |
-| T1 chrome | sidebar + conversation column + right column | 30px · 150% | .30 |
-| T2 content | prose plates, user bubble, code blocks, tables | 26px | .50 (headings match prose) |
+| T1 chrome | sidebar + conversation column + right column | 30px · 150% | .22 (sidebar is the same glass as the chat) |
+| T2 content | prose plates, user bubble, code blocks, tables | 26px | .46 (headings match prose) |
 | T3 controls | composer card (centre → edge gradient, **semi-transparent**), chips, queue dock | 30px | **.66 → .50** |
 | T4 overlay | menus / dropdowns (shell default material), dialogs, toasts | 40px (menus: default 40px · 150%) | .95 (dialogs / toasts) |
 
@@ -91,6 +91,22 @@ still reads through.
 - **Diff preview**: `--dsw-alias-file-diff-*` / `--dsw-alias-code-diff-*` return to
   the shell's opaque fills (light `#e6f4e7` / `#fce6e2`, dark `#1f3124` / `#3c1f1b`),
   and the `+n / −m` counter keeps its green / red ink at rest.
+
+## Sidebar round (reference: Ultronen/dsh-liquid-glass)
+
+- **One glass for the sidebar and the chat**: the colour step came from the shell's
+  own `--dsw-specific-sidebar-fill`, which painted a second, warmer fill on top of
+  the shared `--ios-lg-chrome` plate. The token is now neutralised inside
+  `[class*="sidebarCol"]` only (the Windows title strip and frame live outside that
+  scope), so both columns sample the same tone — light mode went from
+  `sidebar 237 vs chat 228` to `sidebar 226 vs chat 228`.
+- **Bigger shadow, 24px radius**: `0 26px 64px -22px rgba(0,0,0,.40)` +
+  `0 8px 24px -12px rgba(0,0,0,.22)` (dark `0 28px 70px … .72`); the 8px gap at the
+  card's left samples 207 instead of 225, so the card visibly floats.
+- **Lower opacity overall**: `--ios-lg-chrome` .30 → **.22** light and .44 → **.34**
+  dark; prose plates `--ios-lg-plate` .50 → **.46** light and .54 → **.48** dark.
+  Columns, header and prose thin out together; the composer and dialogs keep their
+  denser tier so text never bleeds through.
 
 ## Two invariants
 

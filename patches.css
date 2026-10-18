@@ -31,13 +31,13 @@
   --ios-lg-blur-plate: 26px;
   --ios-lg-blur-overlay: 40px;
 
-  /* monochrome materials — no hue anywhere in the chrome. The baseline alpha is
-     deliberately high because the "wallpaper opacity" slider often sits at 0,
-     and a glass panel that went transparent there would let the conversation
-     behind it bleed through the composer. Light greys sit one step off white so
-     the shell never reads as "mid grey". */
-  --ios-lg-chrome: rgba(253, 253, 253, calc(.30 + var(--dsw-skin-scrim, 0) * .24));
-  --ios-lg-plate: rgba(255, 255, 255, calc(.50 + var(--dsw-skin-scrim, 0) * .16));
+  /* monochrome materials — no hue anywhere in the chrome. The baseline is
+     deliberately LIGHT: this skin is liquid glass, so the wallpaper has to read
+     through the columns (feedback: "整体透明度都低一点"). The occlusion slider
+     thickens the fill from here; the composer keeps its own higher baseline so
+     the transcript never bleeds through it. */
+  --ios-lg-chrome: rgba(253, 253, 253, calc(.22 + var(--dsw-skin-scrim, 0) * .20));
+  --ios-lg-plate: rgba(255, 255, 255, calc(.46 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-strong: rgba(255, 255, 255, calc(.64 + var(--dsw-skin-scrim, 0) * .16));
   /* tables and code blocks hold dense copy, so they get a near-solid card */
   --ios-lg-plate-solid: rgba(255, 255, 255, calc(.84 + var(--dsw-skin-scrim, 0) * .10));
@@ -63,8 +63,8 @@
 }
 
 body[data-ds-dark-theme] {
-  --ios-lg-chrome: rgba(32, 32, 34, calc(.44 + var(--dsw-skin-scrim, 0) * .24));
-  --ios-lg-plate: rgba(42, 42, 44, calc(.54 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-chrome: rgba(32, 32, 34, calc(.34 + var(--dsw-skin-scrim, 0) * .22));
+  --ios-lg-plate: rgba(42, 42, 44, calc(.48 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-strong: rgba(50, 50, 52, calc(.64 + var(--dsw-skin-scrim, 0) * .16));
   --ios-lg-plate-solid: rgba(52, 52, 54, calc(.86 + var(--dsw-skin-scrim, 0) * .08));
   --ios-lg-control: rgba(38, 38, 40, calc(.92 + var(--dsw-skin-scrim, 0) * .06));
@@ -126,20 +126,26 @@ body[data-ds-dark-theme] {
 }
 
 /* The left column is its own floating card: a large radius, a margin that
-   leaves the wallpaper visible on three sides, and one soft drop shadow.
-   The column's own fill is removed (the ::before plate is the material), so
-   clipping the column to the radius keeps every row inside the glass. */
+   leaves the wallpaper visible on three sides, and one big soft drop shadow.
+   Two fixes from the follow-up feedback ("侧栏和聊天的背景色不一样"):
+   1. `--dsw-specific-sidebar-fill` is neutralised INSIDE the column only, so
+      the shell's sidebar row no longer paints a second, warmer fill on top of
+      the shared chrome plate — the sidebar is now exactly the same glass as
+      the chat column.
+   2. the shadow is wider and softer, so the card reads as floating on the
+      wallpaper instead of being cut out of it. */
 [class*="sidebarCol"] {
+  --dsw-specific-sidebar-fill: transparent;
   background: transparent !important;
   border-right: none !important;
   margin: 8px 0 8px 8px;
-  border-radius: 22px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 18px 44px -26px rgba(0, 0, 0, .34), 0 2px 10px -8px rgba(0, 0, 0, .18);
+  box-shadow: 0 26px 64px -22px rgba(0, 0, 0, .40), 0 8px 24px -12px rgba(0, 0, 0, .22);
 }
 
 body[data-ds-dark-theme] [class*="sidebarCol"] {
-  box-shadow: 0 18px 44px -26px rgba(0, 0, 0, .62), 0 2px 10px -8px rgba(0, 0, 0, .42);
+  box-shadow: 0 28px 70px -20px rgba(0, 0, 0, .72), 0 10px 28px -12px rgba(0, 0, 0, .52);
 }
 
 /* The centre column and every settings / market sheet paint themselves with
