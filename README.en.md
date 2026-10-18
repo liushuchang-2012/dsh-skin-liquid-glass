@@ -2,7 +2,7 @@
 
 A Liquid Glass skin for the DeepSeek Harness Web client, modelled on iOS 26: the whole window is one frosted sheet over a low-saturation mesh wallpaper.
 
-The window carries exactly one layer of frost: the wallpaper is blurred once at the bottom of the window, the three columns themselves are transparent, and the sidebar card, the prose plates, the code blocks and the composer each float on that sheet as a flat tint. System blue is the only accent, radii and hairlines follow system-control proportions, and there is exactly one moving part — a 21-second specular sweep across the session header, which stops under reduced motion.
+The window carries exactly one layer of frost: the wallpaper is blurred once at the bottom of the window, the three columns themselves are transparent, and the sidebar card, the conversation bed, the reply cards and the composer each float on that sheet as a flat tint. System blue is the only accent, radii and hairlines follow system-control proportions, and there is exactly one moving part — a 21-second specular sweep across the session header, which stops under reduced motion.
 
 The skin itself is declarative (`skin.json` plus two stylesheets and two wallpapers), and the same repository installs as a DSH client plugin. The plugin form is dependency-free, requires no shared module, and only appends three `<style>` elements to the document.
 
@@ -21,26 +21,27 @@ Both are 1600×1000 captures of the running interface at background occlusion 0.
 
 ## Features
 
-### Four material tiers
+### Five material tiers
 
-The material has four tiers. The values below come from `:root` and `body[data-ds-dark-theme]` in `patches.css`; fills are the alpha at background occlusion 0 (wallpaper fully visible):
+The material has five tiers. The values below come from `:root` and `body[data-ds-dark-theme]` in `patches.css`; fills are the alpha at background occlusion 0 (wallpaper fully visible):
 
 | Tier | Surfaces | Blur · saturation | Fill (light / dark) |
 | --- | --- | --- | --- |
-| T1 sheet | the whole window: sidebar, conversation, right column, session header, Windows title strip | 30px · 150%, once for the whole window | `--ios-lg-chrome` .16 / .28 |
-| T2 content | prose paragraphs and headings, quotes, lists, code blocks, tables, user bubble | none — flat tint on the sheet, with inner rim and shadow | `--ios-lg-plate` .40 / .42; code blocks and tables `--ios-lg-plate-solid` .80 / .82; sidebar card `--ios-lg-sidebar-fill` .14 / .05 |
-| T3 controls | composer card, chips, queue dock | 30px · 150% | `--ios-lg-control-fill` .56→.42 / .54→.42 (radial gradient) |
+| T1 sheet | the whole window: sidebar, conversation, right column, session header, Windows title strip | 30px · 150%, once for the whole window | `--ios-lg-chrome` .20 / .32 |
+| T1b conversation bed | the conversation column itself, behind the whole transcript | none — flat tint on the sheet | `--ios-lg-pane` .50→.40 / .58→.52 (vertical gradient) |
+| T2 content | reply card, user bubble, code blocks, tables | none — flat tint, with inner rim and outer shadow | `--ios-lg-plate` .46 / .46; code blocks and tables `--ios-lg-plate-solid` .84 / .84; sidebar card `--ios-lg-sidebar-fill` .18 / .07 |
+| T3 controls | composer card, chips, queue dock | 30px · 150% | `--ios-lg-control-fill` .40→.28 / .42→.30 (radial gradient) |
 | T4 overlays | dialogs, toasts, menus, diff hover preview, floating windows | 40px · 150% | `--ios-lg-overlay` .94 / .94 |
 
-Radii follow the same tiers: 24px for the sidebar card (all four corners, with an 8px margin on every side), 22px for the composer, 18px for dialogs, 16px for code blocks and tables, 14px for prose plates (18px for headings), 14px for the menu backing. Menus and dropdowns keep the shell's own material — the skin only supplies the glass around them.
+Radii follow the same tiers: 24px for the sidebar card (all four corners, with an 8px margin on every side), 22px for the composer, 20px for a reply card (one card per answer, with no plate inside it), 18px for dialogs, 16px for code blocks and tables, 14px for the menu backing. Menus and dropdowns keep the shell's own material — the skin only supplies the glass around them.
 
-All four tiers share one edge treatment: `--ios-lg-rim` is an `inset 0 1px 0` specular rim (`rgba(255,255,255,.78)` light, `.10` dark), `--ios-lg-hairline` is the separator line (`rgba(60,60,67,.06)` light, `rgba(255,255,255,.08)` dark), shadows come in two steps, `--ios-lg-shadow` and `--ios-lg-shadow-lift`, and prose plates use `--ios-lg-plate-shadow` — a large negative spread keeps the edge clean instead of drawing a dark band along the seam.
+All tiers share one edge treatment: `--ios-lg-rim` is an `inset 0 1px 0` specular rim (`rgba(255,255,255,.78)` light, `.10` dark), `--ios-lg-hairline` is the separator line (`rgba(60,60,67,.06)` light, `rgba(255,255,255,.08)` dark), shadows come in two steps, `--ios-lg-shadow` and `--ios-lg-shadow-lift`, and reply cards and the sidebar use a wider ring — a large negative spread keeps the edge clean instead of drawing a dark band along the seam.
 
 ### Wallpaper and occlusion
 
 The two wallpapers are 2560×1440 neutral grey mesh gradients (`assets/ios-liquid-light.jpg` and `assets/ios-liquid-dark.jpg`, R=G=B, channel means around 230 and 27), so the glass never picks up a colour cast. The only saturated colour in the UI is system blue, `#0a7cff` light and `#0a84ff` dark.
 
-The fills of the shell, the prose plates, the sidebar card and the composer all read `--dsw-skin-scrim` (0–1, driven by the skin center's background-occlusion slider); overlays stay near-solid and do not follow it. Occlusion 0 is the designed-for state; at 1 the shell glass goes from .16 to .36 (`--ios-lg-chrome`, dark .28→.50), prose plates from .40/.42 to .56/.58, and the composer centre from .56 to .78. Columns, header and prose thicken together instead of drifting apart between slider stops.
+The fills of the sheet, the conversation bed, the reply card, the sidebar card and the composer all read `--dsw-skin-scrim` (0–1, driven by the skin center's background-occlusion slider); overlays stay near-solid and do not follow it. Occlusion 0 is the designed-for state; at 1 the sheet goes from .20 to .50 (`--ios-lg-chrome`, dark .32→.62), reply cards from .46 to .62, and the composer centre from .40 to .62. Columns, header, bed and cards thicken together instead of drifting apart between slider stops.
 
 ### Reduced-transparency fallback
 
@@ -72,11 +73,11 @@ The columns themselves are transparent: inside the sidebar's scope `--dsw-specif
 
 When each column frosted itself, neighbouring layers sampled different parts of the wallpaper — the sidebar sat on the darkest corner, so an identical white fill still came out a step apart and the junction showed a hard edge. With a single sample, there is no difference left to read at the seam.
 
-The sidebar is a flat tinted card on that sheet: `margin: 8px` leaves the sheet visible on all four sides, the radius is 24px, the fill is `--ios-lg-sidebar-fill` (`.14` light; a 5% white veil in dark), and the shadow leans left and down so it never paints onto the conversation column. The card carries no `backdrop-filter` of its own, so there is no second sample to take.
+The sidebar is a flat tinted card on that sheet: `margin: 8px` leaves the sheet visible on all four sides, the radius is 24px, the fill is `--ios-lg-sidebar-fill` (`.18` light; a 7% white veil in dark), and the shadow leans left and down so it never paints onto the conversation column. The card carries no `backdrop-filter` of its own, so there is no second sample to take.
 
 ### The glass follows the wallpaper
 
-Glass is translucent, so a column's tone is whatever wallpaper sits behind it. The wallpapers are neutral grey, which means the glass only shifts in luminance, never in hue; it also means that changing the wallpaper moves every sample and `--ios-lg-chrome` and `--ios-lg-sidebar-fill` have to be retuned with it. The values in this repository are tuned to the two bundled wallpapers: the shell and the sidebar deliberately sit at the same luminance (.16 against .14 in light), because a larger difference reads as two different greys in the window.
+Glass is translucent, so a column's tone is whatever wallpaper sits behind it. The wallpapers are neutral grey, which means the glass only shifts in luminance, never in hue; it also means that changing the wallpaper moves every sample and `--ios-lg-chrome` and `--ios-lg-sidebar-fill` have to be retuned with it. The values in this repository are tuned to the two bundled wallpapers: the shell and the sidebar deliberately sit at the same luminance (.20 against .18 in light), because a larger difference reads as two different greys in the window.
 
 ## Installation
 

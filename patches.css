@@ -3,9 +3,9 @@
    ----------------------------------------------------------------------------
    Four glass tiers, one rim, one motion.
 
-     T1 chrome      sidebar · right panel · session header   blur 30 · alpha .34
-     T2 content     prose plates · user bubble               blur 26 · alpha .42
-     T3 controls    composer · tool bar                      blur 30 · alpha .48
+     T1 chrome      sidebar · chat pane · session header     blur 30 · alpha .34
+     T2 content     reply card · user bubble · code · table  blur 26 · alpha .46
+     T3 controls    composer · tool bar                      blur 30 · alpha .40
      T4 overlays    menu · dialog · toast                    blur 40 · alpha .78
 
    House rules this file follows:
@@ -36,26 +36,34 @@
      through the columns (feedback: "整体透明度都低一点"). The occlusion slider
      thickens the fill from here; the composer keeps its own higher baseline so
      the transcript never bleeds through it. */
-  --ios-lg-chrome: rgba(253, 253, 253, calc(.16 + var(--dsw-skin-scrim, 0) * .20));
+  --ios-lg-chrome: rgba(253, 253, 253, calc(.20 + var(--dsw-skin-scrim, 0) * .20));
   /* One sheet, not two: the left pane keeps the SAME fill as the chrome (a
      hair above it) so card and canvas read as one continuous glass, and only
      the shorter blur keeps the darker wallpaper corner from smearing it
      (feedback: the gap read as a trench between two different greys). */
-  --ios-lg-sidebar-fill: rgba(255, 255, 255, calc(.14 + var(--dsw-skin-scrim, 0) * .12));
+  --ios-lg-sidebar-fill: rgba(255, 255, 255, calc(.18 + var(--dsw-skin-scrim, 0) * .14));
   --ios-lg-sidebar-blur: 14px;
   --ios-lg-sidebar-sat: 118%;
-  --ios-lg-plate: rgba(255, 255, 255, calc(.40 + var(--dsw-skin-scrim, 0) * .16));
-  --ios-lg-plate-strong: rgba(255, 255, 255, calc(.56 + var(--dsw-skin-scrim, 0) * .16));
+  /* The conversation column is its own surface, like the settings and market
+     sheets: one background carries the transcript and the messages float on
+     it. Without it the chat sat on the bare window sheet, so the step from the
+     floating sidebar card to a see-through column never read as a transition
+     (feedback: "P2 过渡还是不自然，你通过改对话区的背景来实现"). */
+  --ios-lg-pane: linear-gradient(180deg,
+    rgba(255, 255, 255, calc(.50 + var(--dsw-skin-scrim, 0) * .28)),
+    rgba(255, 255, 255, calc(.40 + var(--dsw-skin-scrim, 0) * .30)));
+  --ios-lg-plate: rgba(255, 255, 255, calc(.46 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate-strong: rgba(255, 255, 255, calc(.58 + var(--dsw-skin-scrim, 0) * .16));
   /* tables and code blocks hold dense copy, so they get a near-solid card */
-  --ios-lg-plate-solid: rgba(255, 255, 255, calc(.80 + var(--dsw-skin-scrim, 0) * .10));
+  --ios-lg-plate-solid: rgba(255, 255, 255, calc(.84 + var(--dsw-skin-scrim, 0) * .10));
   --ios-lg-control: rgba(255, 255, 255, calc(.90 + var(--dsw-skin-scrim, 0) * .06));
-  /* the composer is ONE pane of semi-transparent glass over the wallpaper:
-     the fill rides the occlusion knob so it thins out together with the
-     columns, and the blur follower (or the ::before fallback) supplies the
-     frost — a near-solid fill read as a white sticker on the canvas */
+  /* The composer is the one pane that stays airy: it sits on the transcript's
+     own surface now, so it can let that surface read through instead of
+     competing with it (feedback: "输入框透明度太低"). Its frost comes from the
+     follower mounted by the skin centre, not from a heavy fill. */
   --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%,
-    rgba(255, 255, 255, calc(.56 + var(--dsw-skin-scrim, 0) * .22)),
-    rgba(255, 255, 255, calc(.42 + var(--dsw-skin-scrim, 0) * .24)));
+    rgba(255, 255, 255, calc(.40 + var(--dsw-skin-scrim, 0) * .22)),
+    rgba(255, 255, 255, calc(.28 + var(--dsw-skin-scrim, 0) * .24)));
   --ios-lg-overlay: rgba(250, 250, 252, .94);
   --ios-lg-field: rgba(255, 255, 255, .95);
 
@@ -74,17 +82,20 @@
 }
 
 body[data-ds-dark-theme] {
-  --ios-lg-chrome: rgba(32, 32, 34, calc(.28 + var(--dsw-skin-scrim, 0) * .22));
-  --ios-lg-sidebar-fill: rgba(255, 255, 255, calc(.05 + var(--dsw-skin-scrim, 0) * .04));
+  --ios-lg-chrome: rgba(32, 32, 34, calc(.32 + var(--dsw-skin-scrim, 0) * .22));
+  --ios-lg-sidebar-fill: rgba(255, 255, 255, calc(.07 + var(--dsw-skin-scrim, 0) * .04));
+  --ios-lg-pane: linear-gradient(180deg,
+    rgba(22, 22, 24, calc(.58 + var(--dsw-skin-scrim, 0) * .26)),
+    rgba(16, 16, 18, calc(.52 + var(--dsw-skin-scrim, 0) * .28)));
   --ios-lg-sidebar-blur: 18px;
   --ios-lg-sidebar-sat: 112%;
-  --ios-lg-plate: rgba(42, 42, 44, calc(.42 + var(--dsw-skin-scrim, 0) * .16));
-  --ios-lg-plate-strong: rgba(50, 50, 52, calc(.58 + var(--dsw-skin-scrim, 0) * .16));
-  --ios-lg-plate-solid: rgba(52, 52, 54, calc(.82 + var(--dsw-skin-scrim, 0) * .08));
+  --ios-lg-plate: rgba(42, 42, 44, calc(.46 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate-strong: rgba(50, 50, 52, calc(.60 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate-solid: rgba(52, 52, 54, calc(.84 + var(--dsw-skin-scrim, 0) * .08));
   --ios-lg-control: rgba(38, 38, 40, calc(.90 + var(--dsw-skin-scrim, 0) * .06));
   --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%,
-    rgba(46, 46, 48, calc(.54 + var(--dsw-skin-scrim, 0) * .22)),
-    rgba(30, 30, 32, calc(.42 + var(--dsw-skin-scrim, 0) * .24)));
+    rgba(46, 46, 48, calc(.42 + var(--dsw-skin-scrim, 0) * .22)),
+    rgba(30, 30, 32, calc(.30 + var(--dsw-skin-scrim, 0) * .24)));
   --ios-lg-overlay: rgba(32, 32, 34, .94);
   --ios-lg-field: rgba(255, 255, 255, .93);
 
@@ -181,14 +192,14 @@ body[data-ds-dark-theme] [class*="sidebarCol"] {
   box-shadow: -3px 12px 30px -20px rgba(0, 0, 0, .46), 0 1px 4px -3px rgba(0, 0, 0, .26);
 }
 
-/* The centre column and every settings / market sheet paint themselves with
-   --dsw-alias-bg-base. The plate below is the column's only fill (otherwise the
-   raised bg-base doubles up and the conversation reads darker than the sidebar);
-   the sheets that live *inside* the column keep their own bg-base, which is what
-   makes 插件市场 / 设置 readable instead of letting the page behind bleed through. */
+/* The centre column owns the transcript's surface. Settings and market sheets
+   inside it keep their own bg-base, which is what makes 插件市场 / 设置 readable;
+   the conversation is the one screen that paints straight onto the column, so
+   that is where its background belongs — a flat tint, no filter, so nothing
+   re-samples the wallpaper and the sidebar's edge stays clean. */
 [class*="centerCol"],
 [data-dsh-surface="conversation"] {
-  background: transparent !important;
+  background: var(--ios-lg-pane) !important;
 }
 
 [class*="rightbarCol"],
@@ -294,6 +305,62 @@ body[data-ds-dark-theme] [class*="sidebarCol"] {
      square --ios-lg-plate-strong fill inside this rounded frame was the
      whiter bar that did not match the bubble it sat in */
   border-radius: 18px;
+}
+
+/* --- T2b reply card ------------------------------------------------------- */
+
+/* The assistant's answer is ONE card, not a stack of paragraph plates. It used
+   to be a pile of rounded plates growing down the transcript, so the eye read a
+   staircase instead of a message (feedback: "P2 过渡还是不自然"), and nothing
+   separated one answer from the next. The response node now carries the plate
+   fill, a 20px radius and the same outer shadow family as the sidebar and the
+   composer ("把回复的框也做外圈阴影"); the paragraphs inside drop their own
+   plates, because a plate on a plate is what made the transcript muddy. */
+[data-chat-group-part="response"],
+[data-chat-flow-kind="assistant/message"] {
+  position: relative;
+  background: var(--ios-lg-plate);
+  border-radius: 20px;
+  margin: 6px 0 10px;
+  padding: 14px 18px 16px;
+  box-shadow:
+    0 0 0 1px var(--ios-lg-hairline),
+    var(--ios-lg-rim-soft),
+    0 14px 34px -22px rgba(0, 0, 0, .26),
+    0 3px 10px -6px rgba(0, 0, 0, .10);
+}
+
+body[data-ds-dark-theme] [data-chat-group-part="response"],
+body[data-ds-dark-theme] [data-chat-flow-kind="assistant/message"] {
+  box-shadow:
+    0 0 0 1px var(--ios-lg-hairline),
+    var(--ios-lg-rim-soft),
+    0 16px 38px -22px rgba(0, 0, 0, .62),
+    0 3px 10px -6px rgba(0, 0, 0, .32);
+}
+
+[data-chat-group-part="response"] [class*="markdown"] > p,
+[data-chat-group-part="response"] [class*="markdown"] > :where(h1, h2, h3, h4, h5, h6),
+[data-chat-group-part="response"] [class*="markdown"] > blockquote,
+[data-chat-group-part="response"] [class*="markdown"] > :where(ul, ol),
+[data-chat-flow-kind="assistant/message"] [class*="markdown"] > p,
+[data-chat-flow-kind="assistant/message"] [class*="markdown"] > :where(h1, h2, h3, h4, h5, h6),
+[data-chat-flow-kind="assistant/message"] [class*="markdown"] > blockquote,
+[data-chat-flow-kind="assistant/message"] [class*="markdown"] > :where(ul, ol) {
+  background: none;
+  box-shadow: none;
+}
+
+[data-chat-group-part="response"] [class*="markdown"] > p::before,
+[data-chat-group-part="response"] [class*="markdown"] > :where(h1, h2, h3, h4, h5, h6)::before,
+[data-chat-group-part="response"] [class*="markdown"] > blockquote::before,
+[data-chat-group-part="response"] [class*="markdown"] > :where(ul, ol)::before,
+[data-chat-flow-kind="assistant/message"] [class*="markdown"] > p::before,
+[data-chat-flow-kind="assistant/message"] [class*="markdown"] > :where(h1, h2, h3, h4, h5, h6)::before,
+[data-chat-flow-kind="assistant/message"] [class*="markdown"] > blockquote::before,
+[data-chat-flow-kind="assistant/message"] [class*="markdown"] > :where(ul, ol)::before {
+  content: none;
+  display: none;
 }
 
 /* The right panel's Markdown reader is already a frosted sheet, so it does not
