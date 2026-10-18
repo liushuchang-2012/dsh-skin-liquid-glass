@@ -1,166 +1,200 @@
-# iOS 液态玻璃 · iOS Liquid Glass
+# iOS 液态玻璃（iOS Liquid Glass）
 
-照 iOS 26 / macOS 的 Liquid Glass 语言给 DSH Web 做的一层皮肤。皮肤部分纯声明式资产，不含 `hooks.mjs`、不跑任何 JS；同一个仓库也以 **DSH 客户端插件**的形式发布（`dsh.bundle.patch` + `client.js`），插件那一半只往文档里塞三个 `<style>` 元素，没有依赖、没有网络请求。
+DeepSeek Harness Web 客户端的一层 iOS 26 Liquid Glass 皮肤：整个界面是盖在低饱和网格壁纸上的磨砂玻璃。
 
-- **皮肤 id**：`ios-liquid-glass`
-- **插件包名**：`dsh-skin-liquid-glass`
-- **源码仓库**：<https://github.com/liushuchang-2012/dsh-skin-liquid-glass>（MIT）
-- **安装位置**：`%USERPROFILE%\.dsh\skins\ios-liquid-glass\`
-- **启用方式**：设置 → 皮肤中心 → 「iOS 液态玻璃」，或直接 `POST /api/skin-center/v2/active` 带 `{"active":"ios-liquid-glass"}`
+整个窗口只有一层磨砂：壁纸在窗口底层被磨一次，三栏本身透明，左侧栏、正文、代码块、输入栏各自浮在这层薄片上——分别是一张平涂的圆角卡片、一块向外长出的底板、一片更亮的霜。强调色只有 iOS 系统蓝，圆角、发丝描边与内高光都按系统控件的比例给；整屏只有一处动效——标题栏上一道 21 秒一圈的镜面高光，在系统开启「减少动态效果」时自动停止。
+
+皮肤本体是声明式资产（`skin.json` + 两份样式表 + 两张壁纸），同一仓库也能作为 DSH 客户端插件安装。插件形态零依赖、不 require 任何共享模块，只向文档追加三层 `<style>`。
+
+- 皮肤 id：`ios-liquid-glass`
+- 插件包名：`dsh-skin-liquid-glass`
+- 仓库：<https://github.com/liushuchang-2012/dsh-skin-liquid-glass>
+- 许可：MIT
+
+## 截图
+
+| 浅色 | 深色 |
+| --- | --- |
+| ![浅色模式](preview/light.jpg) | ![深色模式](preview/dark.jpg) |
+
+两张都是 1600×1000 的实机截图，背景遮挡为 0。
+
+## 特性
+
+### 四层材质
+
+材质分四档。下表取自 `patches.css` 的 `:root` 与 `body[data-ds-dark-theme]`，填充值是背景遮挡为 0（壁纸全露）时的 alpha：
+
+| 层级 | 覆盖对象 | 模糊 · 饱和度 | 填充（浅色 / 深色） |
+| --- | --- | --- | --- |
+| T1 薄片 | 整个窗口：侧栏、会话列、右栏、会话标题栏、Windows 标题条 | 30px · 150%，整窗只做一次 | `--ios-lg-chrome` .16 / .28 |
+| T2 内容 | 正文段落与标题、引用、列表、代码块、表格、用户气泡 | 无——平涂在薄片上，只留内描边与投影 | `--ios-lg-plate` .40 / .42；代码块与表格 `--ios-lg-plate-solid` .80 / .82；侧栏卡片 `--ios-lg-sidebar-fill` .14 / .05 |
+| T3 控件 | 输入卡片、chip、队列坞 | 30px · 150% | `--ios-lg-control-fill` .56→.42 / .54→.42（径向渐变） |
+| T4 浮层 | 对话框、toast、菜单、diff 悬停预览、浮动窗口 | 40px · 150% | `--ios-lg-overlay` .94 / .94 |
+
+圆角同样分档：侧栏卡片 24px（四角同值，四周各留 8px 边距），输入卡片 22px，对话框 18px，代码块与表格 16px，正文卡片 14px（标题 18px），菜单底板 14px。菜单与下拉框自身的材质交回 shell 默认值，皮肤只负责它们周围的玻璃。
+
+四层共用一套收边：`--ios-lg-rim` 是一条 `inset 0 1px 0` 的高光内描边（浅色 `rgba(255,255,255,.78)`，深色 `.10`），`--ios-lg-hairline` 是分隔线（浅色 `rgba(60,60,67,.06)`，深色 `rgba(255,255,255,.08)`），投影分 `--ios-lg-shadow` 与 `--ios-lg-shadow-lift` 两档，正文卡片另用 `--ios-lg-plate-shadow`——大负扩散把边缘压干净，不会在接缝处画出一条暗带。
+
+### 壁纸与遮挡
+
+壁纸是两张 2560×1440 的中性灰渐变网格（`assets/ios-liquid-light.jpg` / `assets/ios-liquid-dark.jpg`，R=G=B，三通道均值约 230 / 27），玻璃不会染上色偏，唯一有彩度的位置是系统蓝 `#0a7cff`（深色 `#0a84ff`）。
+
+外壳、正文、侧栏卡片与输入卡片的填充都读 `--dsw-skin-scrim`（取值 0–1，皮肤中心的「背景遮挡」滑杆），浮层保持接近实色、不参与这一档。遮挡 0 是设计基准态；推到 1 时外壳 `--ios-lg-chrome` 从 .16 补到 .36（深色 .28→.50），正文 `--ios-lg-plate` 从 .40/.42 补到 .56/.58，输入卡片中心从 .56 补到 .78。三栏、标题栏、正文一起加厚，不会在不同档位上互相错开。
+
+### 降低透明度回退
+
+`prefers-reduced-transparency: reduce` 下，各层底板（正文、代码块、会话标题栏、输入卡片，以及 Windows 标题条下的整窗薄片）换成 `--dsw-alias-bg-layer-1` 实色并去掉 `backdrop-filter`，输入卡片与气泡换成层 2。`prefers-reduced-motion: reduce` 下那道镜面高光直接停掉（`animation: none`、背景图置空）。两条都是纯 CSS，不需要 JS 参与。
+
+### 插件形态
+
+`package.json` 声明 `dsh.bundle.patch` 与 `dsh.client`。宿主半边 `lib/index.js` 是一个空的 `apply()`，只为了让 cordis 起一个 fiber，客户端 bundle 才有机会进 `window.__DSH_BOOT__`；客户端半边 `client.js` 是构建产物，形如 `window.__ModuleLoader__.load({ id, factory })`，`inject` 为空数组，装载时注入三层 `<style data-plugin-css=…>`（令牌层、材质层、壁纸层），卸载、热重载、切 profile 时一起摘掉。
+
+## 设计说明
+
+### 两层分工
+
+`skin.css` 是令牌层：只重映射 shell 自己的 `--dsw-*` / `--aion-*` 设计令牌（契约见 `contracts/official-tokens-v1.json`），浅色一套、`body[data-ds-dark-theme]` 一套。需要读作玻璃的表面都写成半透明 `rgba()`，alpha 由 `--dsw-skin-scrim` 驱动，因此三栏与面板随遮挡一起加厚，而不是各自漂移。
+
+令牌不能携带 `backdrop-filter`，frosting 也躲不开下面那条定位陷阱，所以材质整体放在 `patches.css`：模糊、饱和、高光内描边、圆角、发丝分隔线，以及唯一那处动效。
+
+### 为什么大容器不直接上 backdrop-filter
+
+`backdrop-filter` 与 `filter` / `transform` 一样会让元素成为 containing block。shell 把每个图标的 hover 提示渲染成 action row 与输入卡片内部的 `position: fixed` span；一旦这些盒子带上滤镜，提示就会脱离按钮、飞进滚动区。
+
+所以模糊只挂在没有后代的 `::before` 假层上：窗口底层一次、会话标题栏一次；输入卡片由皮肤中心挂的 `[data-dsh-composer-frost]` 跟随层供霜，`patches.css` 里的 `::before` 只在跟随层缺席时兜底。菜单、对话框、toast 这类浮层本身就是叶子节点，直接带滤镜。
+
+正文、代码块、表格的底板也是 `::before`，但它们的用途是填充、内描边和投影，不是模糊——窗口已经磨过一次，再叠一层只会重复取样。正文底板的假层用负 inset（`-.18em -.7em`）向外长，文字仍留在 shell 自己的文本列上，圆角不会和第一个字打架。
+
+### 整个窗口磨一次
+
+三栏本身是透明的：侧栏作用域里的 `--dsw-specific-sidebar-fill` 被置空、`background` 清掉、`border-right` 归零，会话列与右栏也不再自己铺一层底。壁纸只在窗口底层 `[data-dsh-frame]::before` 上被磨一次（`--ios-lg-chrome` + 30px + 150%），三栏、卡片都浮在这张薄片上，分隔线退成发丝线。
+
+分成三块各自磨的时候，相邻两层取样的壁纸位置不同：左栏压在壁纸最暗的一角，同样的白填也会差出一截，交界处就出现一道硬台阶。现在窗口只取一次样，接缝处没有可读的差。
+
+侧栏是浮在这张薄片上的平涂卡片：四边各留 8px，露出的是底层薄片，24px 圆角，`--ios-lg-sidebar-fill` 的纯色填充（浅色 .14，深色是一层 5% 的白纱），投影偏左下，不会画到会话列上。它自己不带 `backdrop-filter`，也就没有第二次取样的机会。
+
+### 玻璃跟着壁纸走
+
+玻璃是半透明的，一栏的色调最终等于它背后的壁纸。壁纸是中性灰，所以玻璃只会变动明度、不会变动色相；这也意味着换一张壁纸，各层的取样亮度会整体移动，`--ios-lg-chrome` 与 `--ios-lg-sidebar-fill` 需要跟着重调。仓库里的取值是按自带的两张壁纸调的：外壳与侧栏刻意贴着同一档明度（浅色 .16 对 .14），差值再大就会在窗口里读成两块不同的灰。
 
 ## 安装
 
-**方式一 · 皮肤中心（本机皮肤目录）**：把仓库内容放进 `%USERPROFILE%\.dsh\skins\ios-liquid-glass\`，然后在 设置 → 皮肤中心 里启用。
+三种方式任选一种。前两种装的是同一份皮肤，不要同时开启：同一套规则会叠两遍，壁纸也会画两次。
 
-**方式二 · 当插件装（`dsh plugin`，等价于在 profile 目录里跑 pnpm）**：
+### 皮肤中心
+
+把仓库内容放进用户皮肤目录，默认位置是：
+
+```
+%USERPROFILE%\.dsh\skins\ios-liquid-glass\
+```
+
+目录名要与 `skin.json` 的 `id` 一致，皮肤中心扫到就能用，不需要重启：
+
+```powershell
+git clone https://github.com/liushuchang-2012/dsh-skin-liquid-glass.git `
+  "$env:USERPROFILE\.dsh\skins\ios-liquid-glass"
+```
+
+然后在 设置 → 皮肤 → iOS 液态玻璃 里启用。皮肤中心自己调的是 `POST /api/skin-center/v2/active`，body 为 `{"active":"ios-liquid-glass"}`；换回官方默认时 `active` 传 `null`。
+
+### 作为客户端插件
 
 ```bash
-# Git 直装
-dsh plugin --profile desktop add github:liushuchang-2012/dsh-skin-liquid-glass
+dsh plugin --profile <name> add <path-or-package>
 
-# 或从本地目录装（开发者改完代码直接用这个验证）
-dsh plugin --profile desktop add "C:\path\to\dsh-skin-liquid-glass"
+# 例：从本地 checkout 安装
+dsh plugin --profile <name> add "D:\path\to\dsh-skin-liquid-glass"
 
 # 卸载
-dsh plugin --profile desktop remove dsh-skin-liquid-glass
+dsh plugin --profile <name> remove dsh-skin-liquid-glass
 ```
 
-装完重载页面即可生效。插件形态下 `client.js` 自己铺壁纸与遮罩，所以**不需要**皮肤中心；反过来也一样，两种方式可以各自单独使用，但不要同时开两层（同一套规则会叠两遍，壁纸也会画两次）。
+`<name>` 是目标 profile 名，默认 `web`；`<path-or-package>` 可以是本地绝对路径，也可以是 `github:user/repo` 形式的包说明。装完重载页面生效。插件形态下 `client.js` 自己铺壁纸与遮罩，不需要皮肤中心参与。
 
-## 配色：黑白灰 + 系统强调色
-
-整套外壳只有灰阶，唯一有彩度的地方是系统语义色：
-
-| 用途 | 浅色 | 深色 |
-| --- | --- | --- |
-| 画布/面板/描边 | `#f2f2f7` · `#fff` · `#e8e8ec` · 黑/白低透明描边 | `#000` · 系统灰 1–4 · 白 10–30% 描边 |
-| 正文/次级/三级文字 | `#1c1c1e` · `#48484a` · `#8e8e93` | `#f2f2f7` · `#c7c7cc` · `#8e8e93` |
-| 交互/链接/聚焦 | `#0a7cff` | `#0a84ff` |
-| 成功 / 警告 / 错误 | `#34c759` / `#ff9f0a` / `#ff3b30` | `#30d158` / `#ffd60a` / `#ff453a` |
-| 用户气泡 | 白玻璃 + 8% 系统蓝 | 白玻璃 + 15% 系统蓝 |
-
-壁纸（`assets/*.jpg`）是程序生成的**纯中性灰**场（浅色「银灰日光」/ 深色「石墨夜色」），R=G=B，玻璃永远不会染上色偏。想要完全无彩的气泡，把 `patches.css` 里气泡那条 `rgba(10, 124, 255, …)` 换成灰色即可。
-
-## 文件
-
-| 文件 | 作用 |
-| --- | --- |
-| `skin.json` | 清单 v2：名称、配色、背景图与遮罩、预览图 |
-| `skin.css` | **令牌层**：只重映射 shell 自己的 `--dsw-*` / `--aion-*` 设计令牌（浅色一套、`body[data-ds-dark-theme]` 一套） |
-| `patches.css` | **材质层**：backdrop blur、高光内描边、圆角、发丝分隔线、唯一那处动效 |
-| `assets/ios-liquid-light.jpg` · `assets/ios-liquid-dark.jpg` | 2560×1440 中性灰壁纸 |
-| `preview/light.jpg` · `preview/dark.jpg` | 皮肤中心卡片用的预览图（从实机截图生成） |
-| `package.json` · `cordis.patch.yml` · `lib/index.js` | 插件宿主半边：roster patch 挂载一个 no-op 的 cordis 插件，客户端 bundle 才有机会进 `window.__DSH_BOOT__` |
-| `src/client.template.js` | 客户端 bundle 源码（带占位符，不直接分发） |
-| `scripts/build.mjs` | 零依赖打包器：把两份 CSS、两张压缩壁纸、skin.json 里的遮罩拼进 `client.js` |
-| `client.js` | **构建产物**：`window.__ModuleLoader__.load({ id, factory })`，只碰 DOM，不 require 任何共享模块 |
-| `tests/*.test.mjs` | `npm test`：bundle 生命周期 + 打包接线检查，跑起来不需要任何依赖 |
-| `screenshots.json` | 插件市场用的截图清单（指向 `preview/` 两张） |
-
-## 四层材质
-
-| 层 | 对象 | 模糊 / 饱和度 | 填充（背景遮挡 = 0 时） |
-| --- | --- | --- | --- |
-| T1 外壳 | 侧栏（单独一档更薄）+ 会话区 + 右栏 | 侧栏 14px · saturate 118%；其余 30px · 150% | 侧栏 **.10**；其余 .22 |
-| T2 内容 | 正文段落/标题/列表、用户气泡、代码块、表格 | 26px（气泡跟随插件滑杆） | .46（标题与正文同色） |
-| T3 控件 | 输入卡片（中心 → 边缘渐变，**半透明**）、chip、队列坞 | 30px | **.66 → .50** |
-| T4 浮层 | 菜单 / 下拉（回 shell 默认材质）、对话框、提示条 | 40px（菜单默认 blur 40px · saturate 150%） | .95（对话框 / 提示条） |
-
-`--dsw-skin-scrim`（皮肤中心的**背景遮挡**滑杆）驱动每一层填充：遮挡 0 时就是上表的值，遮挡 100 时补到 0.96 左右。输入卡片现在是**半透明**的：中心 .66、边缘 .50，模糊交给皮肤中心挂的 `[data-dsh-composer-frost]` 跟随层（本文件的 `::before` 是兜底），正文从下面滚过时被磨砂压住、不会串字，壁纸也仍然透得出来；外面再套一层模糊光晕（`--ios-lg-halo`）当轮廓。
-
-## 这一版按反馈改了什么
-
-### 第三轮
-
-10. **发送按钮恢复成 iOS 蓝**：shell 的发送键（`.RlGAzG_primary`）填充取的是 `--dsw-alias-button-info-fill`，我之前把它当“灰 chip”用了，所以按钮一直是灰的；现在浅色 `#0a7cff`、深色 `#0a84ff`，禁用态由 shell 自己的 `:disabled{opacity:.4}` 变淡。同一个令牌也给「添加插件」等主按钮上色。
-11. **表格/代码框不透明度提上来**：新增 `--ios-lg-plate-solid`（浅色 .84 / 深色 .86），`md-code-block`、`tableScroll`、`tableFill` 的假层从 .64 换到它。
-12. **表格卡片左边框贴字的 bug**：shell 的表格单元格是 `padding: 10px 16px 10px 0`，第一列左内边距为 0，所以第一列文字正好顶在我画的左边框上（截图里被圈出来的那条“左边框”）。现在卡片加 `padding: 8px 14px`、首列再加 8px，表格内容从 515 → 529，和左边框之间留出稳定的空隙。
-
-### 第三轮（插件市场兼容）
-
-13. **插件市场 / 设置页不再是“透明纸”**：设置页、市场页整页铺的是 `--dsw-alias-bg-base`，之前是 `.06`（等于全透），所以页面背后的列表会透上来和文字重叠。现在浅色 **.50**、深色 **.54**，市场卡片与设置面板都读得清；同时把中间列自己的背景置空（`background: transparent !important`），避免和外壳假层叠成两层、比侧栏更深。
-14. **弹窗里的字不再重叠**：`添加插件` 这类对话框填充 .84 → **.95**（`--ios-lg-overlay`），`dialogBody` 置空（材质统一由外框给），弹窗内的输入框/下拉改成实色 `--ios-lg-field`（浅 .96 / 深 .94）——之前底下的插件列表会从输入框里透出来。
-15. **发送按钮恢复成 iOS 蓝**：shell 的发送键（`.RlGAzG_primary`）填充取的是 `--dsw-alias-button-info-fill`，我之前把它当“灰 chip”用了；现在浅色 `#0a7cff`、深色 `#0a84ff`（记录在上一段第 10 条，本轮复验）。
-
-### 第四轮
-
-16. **左上角圆角压平 + 最上层同色**：那个小圆角是 shell 自己画的（`[data-windows-titlebar] .BynINW_centerCol { border-radius: var(--dsh-windows-content-radius) 0 0 0 }`，Windows 专属），它在侧栏和聊天栏交界处切出一个缺口；现在只压平这一处（全屏右栏的同名角落一起），标题条仍用和按钮同一块白玻璃（不用渐变）。实测 `[class*=centerCol] rTL = 0px`（原来 16px）。
-
-### 第五轮（本轮反馈）
-
-17. **左侧栏变成悬浮的大圆角卡片**：`[class*="sidebarCol"]` 加 `margin: 8px 0 8px 8px`、`border-radius: 22px`、`overflow: hidden` 和一层柔和投影，侧栏不再贴着窗口左上角，壁纸从三边露出来，看起来是浮在壁纸上的一块玻璃（深色另给一档投影）。
-18. **右侧栏 Markdown 阅读器不再逐段铺模糊**：右栏的 md 预览本身已经挂在右栏的毛玻璃上，每个 `p` / 标题的 `::before` 又各带一层 `backdrop-filter`，长文档滚动时浏览器要逐块重算背板，滚动会一顿一顿的。现在 `[data-document-markdown]`（以及 better-sidebar 的 `editorMd` 预览）里的块级元素不带假层，正文直接落在面板玻璃上，滚动回到普通重绘。
-19. **Markdown 标题不再是白色方条**：原来 `[class*="markdown"] > h1…h6` 直接铺 `--ios-lg-plate-strong`（.64），比正文的 .50 更白、而且是方的，压在圆角的假层上就是一条白条。删掉这层填充后标题与正文共用同一块 `.50` 玻璃，圆角从 14px 提到 18px，白度与气泡一致。
-20. **所有下拉框 / 菜单回 shell 默认材质**：`--dsw-specific-menu` 回到 `var(--dsw-menu-surface-fill)`（浅 `#f8f9fa94` / 深 `#43454a73`），`--dsw-specific-selector`、`--dsw-alias-bg-overlay`、`--dsw-menu-backdrop-filter`（`blur(40px) saturate(150%)`）全部回默认值——皮肤只负责周围的玻璃，不再改浮层自己的透明度。
-21. **输入卡片改为半透明**：`--ios-lg-control-fill` 从近实心的 .96 → .85 改成 **.66 → .50**（`--dsw-skin-scrim` 继续驱动），模糊交给 `[data-dsh-composer-frost]` 跟随层；正文从下面滚过时仍被磨砂压住，但壁纸透得出来。
-22. **改动预览（+n −m）看得清了**：`--dsw-alias-file-diff-*` 与 `--dsw-alias-code-diff-*` 回到 shell 的实色（浅 `#e6f4e7` / `#fce6e2`，深 `#1f3124` / `#3c1f1b`），改动行不再半透明；对话里「已编辑 … +12 -3」也不再只在 hover 时上色，静止状态就是绿 / 红。
-
-### 第六轮（参照 Ultronen/dsh-liquid-glass 再调）
-
-23. **侧栏和聊天改成同一块玻璃**：侧栏里 shell 自己那层 `--dsw-specific-sidebar-fill` 才是上一版两块区域颜色不一样的原因——它在共用的 `--ios-lg-chrome` 假层上又叠了一层更暖的白。现在只在 `[class*="sidebarCol"]` 内部把这个令牌置为 `transparent`（Windows 标题条/外框不在此作用域，不受影响），侧栏与聊天栏的取样色差从约 9 级降到 2 级（浅色实测 `sidebar_empty 237 → 226`、`chat_empty 228`）。
-24. **投影加大、圆角加到 24px**：`0 26px 64px -22px rgba(0,0,0,.40)` + `0 8px 24px -12px rgba(0,0,0,.22)`（深色 `0 28px 70px … .72`），卡片左侧 8px 缝隙里的取色从 225 掉到 207，能明显看出它浮在壁纸上。
-25. **整体更透**：`--ios-lg-chrome` 浅色 .30 → **.22**、深色 .44 → **.34**；正文假层 `--ios-lg-plate` 浅色 .50 → **.46**、深色 .54 → **.48**。三栏、标题条和正文一起变透，壁纸纹理在玻璃后面更清楚，符合液态玻璃的观感；输入卡片和对话框保持各自更高的一档，文字不会串。
-
-### 第七轮（阅读面回实）
-
-26. **「已编辑 N 个文件」卡片看得清了**：这张卡铺的是 `--dsw-alias-bg-layer-1`（`.kuvljq_card`），上一版把这一层做成 .56 的玻璃，卡片后面的会话文字会透上来。现在浅色层 1/层 2 提到 **.90**、深色提到 **.86**（层 3/4 略低），卡片、浮窗、diff 卡片这类「要读的内容面」重新接近实色；外壳的 `--ios-lg-chrome` 仍是 .22，整屏通透感不变。
-27. **diff 悬浮预览不再是深色鬼影**：单文件改动的 hover 预览挂在 shell 的 HoverCard 上，它自带一层深色底 `#2C2C2E`，而预览面 `._preview_*` 用的是半透明 `bg-layer-1`，深色底透上来后路径和 diff 一起发灰。现在 `[class*="preview"]:has(> [data-changes-hover-preview])` 与 `[data-changes-hover-preview]` 直接铺 `--ios-lg-overlay`（浅 .95 / 深 .95），并补上内描边和投影。
-28. **浮动窗口有窗格感**：dockkit 的 `[data-dockkit-host="float"] > section` 与改动卡片一起补了 `--ios-lg-rim` + `--ios-lg-shadow`，浮层不会再和背后的输入框/正文糊在一起。
-
-### 第八轮（左侧栏再透一点）
-
-29. **侧栏单独一档更薄的玻璃**：之前三栏共用 `--ios-lg-chrome`（.22 + `blur(30px) saturate(150%)`），可侧栏卡片浮在壁纸**最左侧**——那块壁纸本身更暗，30px 模糊把暗角摊进整张卡片，150% 饱和度又把取色继续往下压，所以白填一样时侧栏仍比聊天栏灰一档。现在侧栏走自己的 `--ios-lg-sidebar-fill / -blur / -sat`：浅色白填 **.10**、`blur(14px) saturate(118%)`（深色 .16 · 18px · 112%），卡片几乎就是壁纸本身，只留一层很淡的雾。
-30. **卡片四边留缝**：`margin: 8px 0 8px 8px` → **`margin: 8px`**。之前右边没有缝，投影直接压在聊天栏左缘，在上下两个圆角处就是被圈出来的那道“色差带”；现在四边都是壁纸，投影落在壁纸上，转角不再有台阶。
-
-### 第二轮
-
-1. **灰阶再浅一档**：`skin.css` 第二轮把浅色边框/分层又降一档（`#f2f2f7` / `#e8e8ec` / 白），外壳基色走 `rgba(253,253,253,…)`，不再是中灰。
-2. **输入框更实、四周更透、外轮廓加模糊**：输入卡片改为中心→边缘的渐变填充 **.96 → .85**（`--ios-lg-control-fill`，深色 `rgba(46,46,48,.96) → rgba(30,30,32,.88)`），外面套一圈 `0 0 34px 12px rgba(255,255,255,.44)` 的模糊光晕（`--ios-lg-halo`），硬描边退成 1px 发丝线。
-3. **框太小、圆角和字打架**：正文卡片的假层改为**向外扩张**（`inset: -.18em -.7em`）——文字仍留在 shell 自己的文本列上，框却比文字大一圈，左边尤其不再贴字；实测 `scrollWidth == clientWidth`，向外长不会带出横向滚动条。
-4. **思考链**：`[data-turn-process]` / `[data-step-process]` 这类整段外层**不做圆角**（改矩形，给它们 padding 会打乱行距），叶子行（`[data-process-activity]`、`[data-disclosure-row]`、`[data-context-injection-body]`…）给 `.4em .68em` 内边距再用负外边距拉回，文字完整落在圆角里。
-5. **右栏那条很深的分割线**：根因是三栏材质不同——侧栏自带 shell 的 `--dsw-specific-sidebar-fill`（合成后 ≈.59）、会话区只有两层 wash（≈.15）、右栏 ≈.30，交界处必然是一道台阶，再叠上 shell 的 1px 墨线。现在侧栏自带填充改为透明、**三栏共用同一个 `--ios-lg-chrome` 假层**、会话区 wash 整段删掉、分隔线统一成 `rgba(60,60,67,.09)` 发丝线，窗口是一整块玻璃。
-
-### 第一轮
-
-6. **输入框看得清了**：基线填充 .42 → .84，卡片内 textarea / 输入区不再自绘半透明底。
-7. **不再「文字没居中」**：正文卡片删掉 `padding`（`padding: .62em .92em` 会把每段文字从 shell 的文本列上推开）。
-8. **不紫了**：128 处带蓝/紫色相的 surface、描边、滚动条、阴影换成灰阶；`--dsw-alias-state-business-primary` 由靛蓝 `#5e5ce6` 改为系统蓝，思考渐变改为中性黑/白，壁纸重画成纯灰（R=G=B）。
-9. **接缝**：不再自画 `border-right` / `border-left`（和 shell 的 `.5px` 叠成双线），`::before` 假层用 `border-radius: inherit` 跟随 shell 圆角。
-
-## 两个必须守住的细节
-
-1. **含有 `position: fixed` 后代的盒子不能上 backdrop-filter**。shell 把每个图标的 hover 提示渲染成 action row / 输入卡片内部的 fixed span；一旦这些盒子成了 containing block，提示就会飞到几百像素外或钻进滚动区（皮肤中心 #1724）。所以大容器（侧栏、右栏、标题栏、代码块、表格）的模糊都挂在 `::before` 假层上——假层没有后代，不可能截断任何定位；只有正文段落、用户气泡这类叶子节点才直接加模糊。
-2. **不改几何、不碰交互**。除了圆角、内描边和背景填充，不动 padding/宽度/滚动结构；`prefers-reduced-motion` 关掉那一道高光扫过，`prefers-reduced-transparency` 把玻璃降级成实色面板。
-
-## 插件形态（client bundle）
-
-同一个仓库同时是一个 DSH 客户端插件，所以市场里既能当皮肤装、也能 `dsh plugin add`：
-
-- 宿主半边 `lib/index.js` 是空的 `apply()`，只为了让 cordis 起一个 fiber；开关没有走 `dsh-settings`（第三方命名空间对 Web 端会答 `settings-not-exposed`），而是存在 `localStorage["dsh-skin-liquid-glass.enabled"]`，默认开启，也可以在浏览器里调 `setEnabled(false)` 立即收起。
-- 客户端半边 `client.js` **不 require 任何模块**（`dsh.client.inject` 为空数组）：所有选择器要么是 `--dsw-*` 令牌别名、要么是 `[class*="_suffix"]`，外壳换 hash 也不会失效。
-- 三个 `<style data-plugin-css=…>` 图层：`skin.css`（令牌层）、`patches.css`（材质层）、以及打包时生成的壁纸层（`body` 铺图 + skin.json 里的 scrim，深色走 `body[data-ds-dark-theme]`）。teardown（热重载 / 卸载 / 换 profile）时一起摘掉。
-- 壁纸是 1600×900 / q88 的再压缩版（浅色 40 KB、深色 48 KB），base64 之后整包 **171 KB**。
+### 本地开发
 
 ```bash
-npm run build                            # 重新生成 client.js（改完 CSS / 壁纸 / skin.json 之后必跑）
-npm test                                 # bundle 生命周期 + 打包接线，共 14 项
-dsh plugin --profile desktop add "$PWD"  # 本地装一份看效果
+npm run build               # 由 src/client.template.js 生成 client.js
+npm test                    # 14 项检查
+npm run build -- --check    # 只校验 client.js 与当前源码是否一致
 ```
 
-## 卸载 / 回退
+改动 `skin.css`、`patches.css`、`assets/` 或 `skin.json` 之后都要重跑 `npm run build`：`client.js` 是构建产物，手改会在下次构建时被覆盖，任何安装方式装的都是构建后的这一份。开发时最省事的验证方式是把本地目录直接 `dsh plugin add` 进去，重建之后再刷新页面。
 
-- 换回官方默认：设置 → 皮肤中心 → 官方默认（等价于 `POST /api/skin-center/v2/active` 带 `{"active":null}`）。
-- 彻底删除：删掉 `%USERPROFILE%\.dsh\skins\ios-liquid-glass\` 整个目录，刷新页面即可。
+### 卸载与回退
 
-## 验证记录（2026-10-13 第二轮）
+- 皮肤中心：在 设置 → 皮肤 里换回官方默认，或删掉 `%USERPROFILE%\.dsh\skins\ios-liquid-glass\` 整个目录再刷新页面。
+- 插件：`dsh plugin --profile <name> remove dsh-skin-liquid-glass`，然后重载页面。
+- 只想临时关掉：把 `localStorage["dsh-skin-liquid-glass.enabled"]` 写成 `"0"`，见「配置」。
 
-- `/api/skin-center/v2/catalog`：`origin: "user"`，`warnings: []`。
-- `/api/skin-center/v2/skins/ios-liquid-glass/{stylesheet,patches}` → 200，且都被加载器包进 `html[data-dsh-skin="ios-liquid-glass"]` 作用域。
-- 实机（headless Chrome + 已认证会话，3200×2000@2x，背景遮挡 = 0）：
-  - 三栏假层统一：`[class*="sidebarCol"] x0 w280` / `[class*="centerCol"] x280 w1320` / `[class*="rightbarCol"] x1600 w0` 全部 `plate = rgba(253,253,253,0.3)`，侧栏自带填充已置空（`base = rgba(0,0,0,0)`）。
-  - 分隔线：`border-left/right = rgba(60,60,67,0.09)` 发丝线。
-  - 正文卡片：假层 `rgba(255,255,255,0.5)` + `blur(26px) saturate(1.5)`，段落元素本身 `bg = transparent`、无 filter（假层向外扩张），`scrollWidth == clientWidth`（无横向溢出）。
-  - 输入卡片：渐变填充中心 .96 / 边缘 .85，圆角 22px，光晕 `--ios-lg-halo`。
-  - 用户气泡：`blur(10px) saturate(1.5)`（跟随皮肤中心的「气泡模糊」滑杆）。
-  - 深色：外壳 `rgba(32,32,34,0.44)`，输入卡片 `rgba(46,46,48,.96) → rgba(30,30,32,.88)`。
-  - `--dsw-skin-scrim = 0`，背景层已挂载（`data-dsh-backdrop-active = true`）。
+## 配置
+
+### 背景遮挡
+
+`--dsw-skin-scrim`（0–1）是唯一的填充总开关，由皮肤中心的「背景遮挡」滑杆写入。0 是壁纸全露、玻璃最透的一档；1 时面板补实到 .90 以上。插件形态下没有这个滑杆，变量取 CSS 默认值 0，即最透的一档；要固定别的档位，在页面里给 `body` 设同名自定义属性即可。
+
+气泡另有两个独立旋钮：`--dsh-skin-bubble-alpha`（默认 .5）与 `--dsh-skin-bubble-blur`（默认 10px），同样由皮肤中心提供。
+
+### 开关
+
+插件形态的启用状态存在 `localStorage["dsh-skin-liquid-glass.enabled"]`，默认开启，值不是 `"0"` 或 `"false"` 即视为开启。客户端 bundle 导出了 `setEnabled(enabled)` 供程序化调用；页面上更直接的做法是改 localStorage 再刷新：
+
+```js
+localStorage.setItem("dsh-skin-liquid-glass.enabled", "0");
+```
+
+开关没有走 `dsh-settings`：宿主 apiproxy 只服务白名单内的设置命名空间，第三方命名空间会答 `settings-not-exposed`，所以这个皮肤把状态留在浏览器本地，保持自包含。
+
+### 壁纸与遮罩
+
+壁纸和遮罩写在 `skin.json` 的 `contributes.backgroundMedia.{light,dark}` 里：`src` 指向 `assets/` 下的原图，`scrim` 是一条 `radial-gradient` / `linear-gradient` 列表，叠在壁纸上方。构建时 `scripts/build.mjs` 会把这两项、两份样式表与两张 1600×900 的压缩壁纸一起烘进 `client.js`；皮肤中心形态则直接读 `skin.json`。
+
+## 兼容性与限制
+
+- **DSH 版本**：`package.json` 没有声明 `engines` 区间；实机验证在 DSH `0.2.0-rc.2` 上完成。
+- **平台**：验证在 Windows 上进行。Windows 上 shell 会把聊天列左上角切出一个缺口（`[data-windows-titlebar]` 下自带的那条圆角），皮肤用一条专属规则把这个角压平，全屏右栏的同一个角一并压平。这条规则在其他平台不匹配任何元素，仓库里也没有别的平台专属逻辑。
+- **macOS / Linux**：未实测。样式里所有 `backdrop-filter` 都带 `-webkit-` 前缀，`prefers-reduced-transparency` 已覆盖，字体栈优先 `SF Pro Text` / `-apple-system` 再回落到 `Segoe UI`；但没有在真机上校对过渲染结果。
+- **不改的东西**：几何与交互。除圆角、外边距、内描边、背景填充和投影外，不动 padding、宽度与滚动结构；选择器要么是 `--dsw-*` 令牌别名，要么是 `[class*="_suffix"]` 匹配，仓库里没有 `hooks.mjs`，也不监听任何 shell 事件。
+- **视觉调校跟着壁纸走**：自带壁纸是中性灰，三栏、正文卡片与气泡的填充都按它调过。换壁纸后各层取样亮度会整体偏移，需要重调 `--ios-lg-chrome`、`--ios-lg-sidebar-fill` 与 `--ios-lg-plate`。
+
+## 验证
+
+`npm test` 跑 `node --test`，14 项，零依赖：
+
+- **bundle 生命周期（7 项）**：只注册一个以包名为 id 的 loader 条目；factory 不 require 共享模块，并导出 `apply` / `setEnabled` / `inject`；`apply()` 铺出三层 `<style>` 且 teardown 全部摘掉；重复 `apply()` 不产生重复图层；`setEnabled(false)` 摘层、写入 `"0"`、下次 `apply()` 仍保持关闭；没有 theme service、没有 `ctx.effect` 也能工作；`client.js` 保持在 400 KB 以内。
+- **打包接线（7 项）**：`package.json` 声明 `dsh.bundle.patch` 与 web 客户端且 `inject` 为空；`main`、根导出、`./client` 与 `files` 每一项都真实存在；roster patch 按包名挂载；`client.js` 与构建产物逐字节一致；`skin.json` 声明的两层、两套配色、壁纸与预览图都存在；`screenshots.json` 在 1–8 张之间；两份 README 都写了插件安装路径，`LICENSE` 存在。
+
+`node scripts/build.mjs --check` 单独跑也能确认 `client.js` 没有过期；产物与源码不一致时它以非零码退出，并打印 `client.js is stale — run: npm run build`。
+
+浅色与深色都在 1600×1000 下逐块校对过，`preview/light.jpg` 与 `preview/dark.jpg` 就是那时的校对图。
+
+测试覆盖的是加载契约与打包接线，不覆盖像素级外观：填色、模糊半径、圆角这类结果靠实机目视校对，没有断言。皮肤中心侧的目录扫描与作用域包裹同样不在 `npm test` 范围内，要装上去才看得到。
+
+## 目录结构
+
+| 路径 | 作用 |
+| --- | --- |
+| `package.json` | 包元数据，以及 `dsh.bundle` / `dsh.client` 声明 |
+| `skin.json` | 皮肤清单 v2：id、名称、强调色、预览图、样式表与材质表、壁纸和 scrim |
+| `skin.css` | 令牌层，重映射 shell 的 `--dsw-*` / `--aion-*` 令牌（浅色 + `body[data-ds-dark-theme]`） |
+| `patches.css` | 材质层：模糊、饱和、高光内描边、圆角、发丝线、唯一那处动效 |
+| `assets/ios-liquid-{light,dark}.jpg` | 原尺寸壁纸，2560×1440 |
+| `assets/plugin-wallpaper-{light,dark}.jpg` | 1600×900 / q88 压缩版，构建时 base64 进 bundle |
+| `preview/{light,dark}.jpg` | 皮肤中心卡片与本 README 用的实机截图，1600×1000 |
+| `screenshots.json` | 截图清单，相对本目录 |
+| `lib/index.js` | 宿主半边：一个空 `apply()`，只负责起 fiber |
+| `cordis.patch.yml` | roster patch，把包按自己的名字挂进 profile |
+| `src/client.template.js` | 客户端 bundle 模板，含构建期占位符，不直接分发 |
+| `scripts/build.mjs` | 零依赖构建器：替换占位符并写出 `client.js`，`--check` 只做比对 |
+| `client.js` | 构建产物，`window.__ModuleLoader__.load({ id, factory })` |
+| `tests/` | `node:test` 用例：bundle 生命周期与打包接线 |
+| `SUBMIT.md` | 发布与投稿说明 |
+| `LICENSE` | MIT 正文 |
+
+## 许可
+
+MIT，见 `LICENSE`，版权行为 `ios-liquid-glass contributors`。
+
+设计语言来自 Apple 的 Liquid Glass。仓库内不含第三方代码；壁纸是中性灰渐变网格图，预览图截自本皮肤下的 DSH Web 界面。

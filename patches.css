@@ -36,62 +36,65 @@
      through the columns (feedback: "整体透明度都低一点"). The occlusion slider
      thickens the fill from here; the composer keeps its own higher baseline so
      the transcript never bleeds through it. */
-  --ios-lg-chrome: rgba(253, 253, 253, calc(.22 + var(--dsw-skin-scrim, 0) * .20));
-  /* the left column is the thinnest pane in the window: a very low white wash,
-     a short blur and a weaker saturate so it reads as the wallpaper itself
-     (feedback: "把左边栏改的透明一点"). Blur + saturate are what made the left
-     column look greyer than the chat: the card samples the darker far-left
-     corner of the wallpaper, and 150% saturate pushed that sample down in
-     luminance. Less of both keeps the card on the wallpaper's own colour. */
-  --ios-lg-sidebar-fill: rgba(255, 255, 255, calc(.10 + var(--dsw-skin-scrim, 0) * .28));
+  --ios-lg-chrome: rgba(253, 253, 253, calc(.16 + var(--dsw-skin-scrim, 0) * .20));
+  /* One sheet, not two: the left pane keeps the SAME fill as the chrome (a
+     hair above it) so card and canvas read as one continuous glass, and only
+     the shorter blur keeps the darker wallpaper corner from smearing it
+     (feedback: the gap read as a trench between two different greys). */
+  --ios-lg-sidebar-fill: rgba(255, 255, 255, calc(.14 + var(--dsw-skin-scrim, 0) * .12));
   --ios-lg-sidebar-blur: 14px;
   --ios-lg-sidebar-sat: 118%;
-  --ios-lg-plate: rgba(255, 255, 255, calc(.46 + var(--dsw-skin-scrim, 0) * .16));
-  --ios-lg-plate-strong: rgba(255, 255, 255, calc(.64 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate: rgba(255, 255, 255, calc(.40 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate-strong: rgba(255, 255, 255, calc(.56 + var(--dsw-skin-scrim, 0) * .16));
   /* tables and code blocks hold dense copy, so they get a near-solid card */
-  --ios-lg-plate-solid: rgba(255, 255, 255, calc(.84 + var(--dsw-skin-scrim, 0) * .10));
-  --ios-lg-control: rgba(255, 255, 255, calc(.92 + var(--dsw-skin-scrim, 0) * .06));
+  --ios-lg-plate-solid: rgba(255, 255, 255, calc(.80 + var(--dsw-skin-scrim, 0) * .10));
+  --ios-lg-control: rgba(255, 255, 255, calc(.90 + var(--dsw-skin-scrim, 0) * .06));
   /* the composer is ONE pane of semi-transparent glass over the wallpaper:
      the fill rides the occlusion knob so it thins out together with the
      columns, and the blur follower (or the ::before fallback) supplies the
      frost — a near-solid fill read as a white sticker on the canvas */
   --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%,
-    rgba(255, 255, 255, calc(.66 + var(--dsw-skin-scrim, 0) * .22)),
-    rgba(255, 255, 255, calc(.50 + var(--dsw-skin-scrim, 0) * .24)));
-  --ios-lg-overlay: rgba(250, 250, 252, .95);
-  --ios-lg-field: rgba(255, 255, 255, .96);
+    rgba(255, 255, 255, calc(.56 + var(--dsw-skin-scrim, 0) * .22)),
+    rgba(255, 255, 255, calc(.42 + var(--dsw-skin-scrim, 0) * .24)));
+  --ios-lg-overlay: rgba(250, 250, 252, .94);
+  --ios-lg-field: rgba(255, 255, 255, .95);
 
-  --ios-lg-rim: inset 0 1px 0 rgba(255, 255, 255, .82);
-  --ios-lg-rim-soft: inset 0 1px 0 rgba(255, 255, 255, .54);
-  --ios-lg-hairline: rgba(60, 60, 67, .09);
-  --ios-lg-shadow: 0 18px 44px -24px rgba(0, 0, 0, .16), 0 2px 10px -8px rgba(0, 0, 0, .08);
-  --ios-lg-shadow-lift: 0 26px 60px -28px rgba(0, 0, 0, .20), 0 4px 14px -8px rgba(0, 0, 0, .10);
+  --ios-lg-rim: inset 0 1px 0 rgba(255, 255, 255, .78);
+  --ios-lg-rim-soft: inset 0 1px 0 rgba(255, 255, 255, .50);
+  --ios-lg-hairline: rgba(60, 60, 67, .06);
+  --ios-lg-shadow: 0 10px 26px -18px rgba(0, 0, 0, .16), 0 2px 6px -4px rgba(0, 0, 0, .08);
+  --ios-lg-shadow-lift: 0 14px 36px -22px rgba(0, 0, 0, .20), 0 3px 10px -6px rgba(0, 0, 0, .10);
+  /* every content plate floats on the wallpaper with one shared shadow; the
+     large negative spread keeps the edge clean instead of drawing a dark band
+     along the seam next to it */
+  --ios-lg-plate-shadow: 0 12px 28px -18px rgba(0, 0, 0, .20), 0 2px 6px -4px rgba(0, 0, 0, .08);
   /* the composer's surrounding glow: a blurred halo, not a hard ring */
-  --ios-lg-halo: 0 0 34px 12px rgba(255, 255, 255, .44), 0 0 3px 1px rgba(255, 255, 255, .34);
+  --ios-lg-halo: 0 0 30px 8px rgba(255, 255, 255, .36), 0 0 3px 1px rgba(255, 255, 255, .28);
   --ios-lg-sheen: linear-gradient(100deg, rgba(255, 255, 255, 0) 34%, rgba(255, 255, 255, .52) 50%, rgba(255, 255, 255, 0) 66%);
 }
 
 body[data-ds-dark-theme] {
-  --ios-lg-chrome: rgba(32, 32, 34, calc(.34 + var(--dsw-skin-scrim, 0) * .22));
-  --ios-lg-sidebar-fill: rgba(28, 28, 30, calc(.16 + var(--dsw-skin-scrim, 0) * .30));
+  --ios-lg-chrome: rgba(32, 32, 34, calc(.28 + var(--dsw-skin-scrim, 0) * .22));
+  --ios-lg-sidebar-fill: rgba(255, 255, 255, calc(.05 + var(--dsw-skin-scrim, 0) * .04));
   --ios-lg-sidebar-blur: 18px;
   --ios-lg-sidebar-sat: 112%;
-  --ios-lg-plate: rgba(42, 42, 44, calc(.48 + var(--dsw-skin-scrim, 0) * .16));
-  --ios-lg-plate-strong: rgba(50, 50, 52, calc(.64 + var(--dsw-skin-scrim, 0) * .16));
-  --ios-lg-plate-solid: rgba(52, 52, 54, calc(.86 + var(--dsw-skin-scrim, 0) * .08));
-  --ios-lg-control: rgba(38, 38, 40, calc(.92 + var(--dsw-skin-scrim, 0) * .06));
+  --ios-lg-plate: rgba(42, 42, 44, calc(.42 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate-strong: rgba(50, 50, 52, calc(.58 + var(--dsw-skin-scrim, 0) * .16));
+  --ios-lg-plate-solid: rgba(52, 52, 54, calc(.82 + var(--dsw-skin-scrim, 0) * .08));
+  --ios-lg-control: rgba(38, 38, 40, calc(.90 + var(--dsw-skin-scrim, 0) * .06));
   --ios-lg-control-fill: radial-gradient(130% 150% at 50% 35%,
-    rgba(46, 46, 48, calc(.64 + var(--dsw-skin-scrim, 0) * .22)),
-    rgba(30, 30, 32, calc(.52 + var(--dsw-skin-scrim, 0) * .24)));
-  --ios-lg-overlay: rgba(32, 32, 34, .95);
-  --ios-lg-field: rgba(255, 255, 255, .94);
+    rgba(46, 46, 48, calc(.54 + var(--dsw-skin-scrim, 0) * .22)),
+    rgba(30, 30, 32, calc(.42 + var(--dsw-skin-scrim, 0) * .24)));
+  --ios-lg-overlay: rgba(32, 32, 34, .94);
+  --ios-lg-field: rgba(255, 255, 255, .93);
 
-  --ios-lg-rim: inset 0 1px 0 rgba(255, 255, 255, .11);
-  --ios-lg-rim-soft: inset 0 1px 0 rgba(255, 255, 255, .07);
-  --ios-lg-hairline: rgba(255, 255, 255, .10);
-  --ios-lg-shadow: 0 18px 44px -24px rgba(0, 0, 0, .60), 0 2px 10px -8px rgba(0, 0, 0, .36);
-  --ios-lg-shadow-lift: 0 26px 60px -28px rgba(0, 0, 0, .68), 0 4px 14px -8px rgba(0, 0, 0, .42);
-  --ios-lg-halo: 0 0 34px 12px rgba(255, 255, 255, .07);
+  --ios-lg-rim: inset 0 1px 0 rgba(255, 255, 255, .10);
+  --ios-lg-rim-soft: inset 0 1px 0 rgba(255, 255, 255, .06);
+  --ios-lg-hairline: rgba(255, 255, 255, .08);
+  --ios-lg-shadow: 0 10px 26px -18px rgba(0, 0, 0, .48), 0 2px 6px -4px rgba(0, 0, 0, .28);
+  --ios-lg-shadow-lift: 0 14px 36px -22px rgba(0, 0, 0, .52), 0 3px 10px -6px rgba(0, 0, 0, .30);
+  --ios-lg-plate-shadow: 0 12px 28px -18px rgba(0, 0, 0, .46), 0 2px 6px -4px rgba(0, 0, 0, .24);
+  --ios-lg-halo: 0 0 30px 8px rgba(255, 255, 255, .06);
   --ios-lg-sheen: linear-gradient(100deg, rgba(255, 255, 255, 0) 34%, rgba(255, 255, 255, .14) 50%, rgba(255, 255, 255, 0) 66%);
 }
 
@@ -105,15 +108,28 @@ body[data-ds-dark-theme] {
   background: transparent !important;
 }
 
-/* the Windows shell paints its title strip with the opaque sidebar fill and
-   parks the window drag region on that strip's ::before — keep the drag
-   region, drop the paint, frost the strip instead */
-[data-windows-titlebar] [data-dsh-frame]::before {
+/* ONE sheet for the whole window. This is the fix for the vertical "trench"
+   between sidebar and chat: while every column carried its own backdrop-filter,
+   two neighbouring blur layers sampled different parts of the wallpaper, so the
+   junction showed a hard step even when both used the same fill (the left pane
+   sat on the darker far-left corner: 210 against 227 for the chat). The frame now
+   frosts the wallpaper exactly once, the columns are transparent, and every card
+   inside — sidebar, prose plates, bubbles, the composer — floats on that sheet as
+   a flat tint plus a shadow, so there is no seam left to read. */
+[data-dsh-frame] {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-dsh-frame]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--ios-lg-chrome);
-  border-bottom: 1px solid var(--ios-lg-hairline);
-  box-shadow: var(--ios-lg-rim-soft);
   -webkit-backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
   backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
+  pointer-events: none;
 }
 
 /* --- T1 chrome ------------------------------------------------------------ */
@@ -150,18 +166,19 @@ body[data-ds-dark-theme] {
   --dsw-specific-sidebar-fill: transparent;
   background: transparent !important;
   border-right: none !important;
-  /* gaps on all four sides. With a right-hand gap of zero the card's drop
-     shadow fell straight onto the chat column's edge and read as a dark band
-     along the seam (the two corners the user circled). The card now floats
-     with wallpaper on every side and the shadow lands on wallpaper. */
+  /* The left pane is a card of *flat* tint on the shared sheet: no
+     backdrop-filter of its own, so nothing re-samples the wallpaper and the
+     seam to the chat stays invisible. Round on all four sides with an 8px
+     margin, soft shadow biased left/down so it never paints onto the chat. */
   margin: 8px;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 26px 64px -22px rgba(0, 0, 0, .40), 0 8px 24px -12px rgba(0, 0, 0, .22);
+  background: var(--ios-lg-sidebar-fill) !important;
+  box-shadow: -3px 10px 26px -20px rgba(0, 0, 0, .18), 0 1px 4px -3px rgba(0, 0, 0, .08);
 }
 
 body[data-ds-dark-theme] [class*="sidebarCol"] {
-  box-shadow: 0 28px 70px -20px rgba(0, 0, 0, .72), 0 10px 28px -12px rgba(0, 0, 0, .52);
+  box-shadow: -3px 12px 30px -20px rgba(0, 0, 0, .46), 0 1px 4px -3px rgba(0, 0, 0, .26);
 }
 
 /* The centre column and every settings / market sheet paint themselves with
@@ -181,38 +198,8 @@ body[data-ds-dark-theme] [class*="sidebarCol"] {
   border-left-color: var(--ios-lg-hairline) !important;
 }
 
-[data-dsh-surface="sidebar"]::before,
-[data-slot="sidebar"]::before,
-[class*="sidebarCol"]::before,
-[class*="rightbarCol"]::before,
-[data-sidebar-right-session]::before,
-[data-dsh-surface="conversation"]::before,
-[class*="centerCol"]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: var(--ios-lg-chrome);
-  box-shadow: var(--ios-lg-rim-soft);
-  -webkit-backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
-  backdrop-filter: blur(var(--ios-lg-blur-chrome)) saturate(var(--ios-lg-sat));
-  pointer-events: none;
-}
-
-/* The left column rides its own (much thinner) material. When the plate below
-   was the shared chrome the sidebar read a few levels darker than the chat,
-   because its big blur sampled the darker far-left corner of the wallpaper and
-   150% saturate pulled that sample down. The wash, blur and saturate now come
-   from the --ios-lg-sidebar-* trio, so the card is closer to the wallpaper
-   itself (feedback: "把左边栏改的透明一点"). */
-[data-dsh-surface="sidebar"]::before,
-[data-slot="sidebar"]::before,
-[class*="sidebarCol"]::before {
-  background: var(--ios-lg-sidebar-fill);
-  -webkit-backdrop-filter: blur(var(--ios-lg-sidebar-blur)) saturate(var(--ios-lg-sidebar-sat));
-  backdrop-filter: blur(var(--ios-lg-sidebar-blur)) saturate(var(--ios-lg-sidebar-sat));
-}
+/* The columns themselves paint nothing: the frame's single ::before above is
+   the only material, so neighbouring panes can never show a sampling step. */
 
 /* a panel nested in the right column must not stack a second plate */
 [class*="rightbarCol"] [class*="panel"][data-sidebar-right-open]:not([class*="panelBody"]) {
@@ -298,9 +285,7 @@ body[data-ds-dark-theme] [class*="sidebarCol"] {
   z-index: -1;
   border-radius: 14px;
   background: var(--ios-lg-plate);
-  box-shadow: var(--ios-lg-rim-soft), 0 10px 26px -22px rgba(0, 0, 0, .26);
-  -webkit-backdrop-filter: blur(var(--ios-lg-blur-plate)) saturate(var(--ios-lg-sat));
-  backdrop-filter: blur(var(--ios-lg-blur-plate)) saturate(var(--ios-lg-sat));
+  box-shadow: var(--ios-lg-rim-soft), var(--ios-lg-plate-shadow);
   pointer-events: none;
 }
 
@@ -356,7 +341,7 @@ body[data-ds-dark-theme] [class*="sidebarCol"] {
   );
   border: 1px solid rgba(10, 124, 255, .13);
   border-radius: 20px;
-  box-shadow: var(--ios-lg-rim);
+  box-shadow: var(--ios-lg-rim), var(--ios-lg-plate-shadow);
   -webkit-backdrop-filter: blur(var(--dsh-skin-bubble-blur, 10px)) saturate(var(--ios-lg-sat));
   backdrop-filter: blur(var(--dsh-skin-bubble-blur, 10px)) saturate(var(--ios-lg-sat));
 }
@@ -386,8 +371,7 @@ body[data-ds-dark-theme] [data-slot="main.conversation"] [class*="userStack"] [c
   z-index: -1;
   border-radius: inherit;
   background: var(--ios-lg-plate-solid);
-  -webkit-backdrop-filter: blur(var(--ios-lg-blur-plate)) saturate(var(--ios-lg-sat));
-  backdrop-filter: blur(var(--ios-lg-blur-plate)) saturate(var(--ios-lg-sat));
+  box-shadow: var(--ios-lg-plate-shadow);
   pointer-events: none;
 }
 
