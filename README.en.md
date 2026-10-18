@@ -35,6 +35,8 @@ The material has five tiers. The values below come from `:root` and `body[data-d
 
 Radii follow the same tiers: 24px for the sidebar card (all four corners, with an 8px margin on every side), 22px for the composer, 20px for a reply card (one card per answer, with no plate inside it), 18px for dialogs, 16px for code blocks and tables, 14px for the menu backing. Menus and dropdowns keep the shell's own material — the skin only supplies the glass around them.
 
+The tool-detail hovercard (--dsw-hovercard-bg) is deliberately left on the shell's dark material: its text is laid out in white for a dark card, so a light fill would make the heading disappear. The diff hover preview is a different variant (light fill, dark text) and gets an opaque fill from patches.css.
+
 All tiers share one edge treatment: `--ios-lg-rim` is an `inset 0 1px 0` specular rim (`rgba(255,255,255,.78)` light, `.10` dark), `--ios-lg-hairline` is the separator line (`rgba(60,60,67,.06)` light, `rgba(255,255,255,.08)` dark), shadows come in two steps, `--ios-lg-shadow` and `--ios-lg-shadow-lift`, and reply cards and the sidebar use a wider ring — a large negative spread keeps the edge clean instead of drawing a dark band along the seam.
 
 ### Wallpaper and occlusion

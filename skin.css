@@ -162,7 +162,8 @@ body[data-ds-dark-theme] {
   --dsw-alias-toast-bg: rgba(255, 255, 255, .82);
   --dsw-alias-tooltip-bg: rgba(28, 28, 30, .86);
   --dsw-alias-tooltip-fg: #ffffff;
-  --dsw-hovercard-bg: rgba(255, 255, 255, .74);
+  /* 悬停卡片（工具详情等）不改成浅色：它里面的文字是按 shell 的深色底排的，
+     换成浅色底就是白字白底。diff 悬停预览在 patches.css 里单独处理。 */
   --dsw-linear-gradient-think: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .12), rgba(0, 0, 0, 0));
   --dsw-linear-think-select: linear-gradient(90deg, rgba(10, 124, 255, .20), rgba(0, 0, 0, .12));
 
@@ -300,7 +301,7 @@ body[data-ds-dark-theme] {
   --dsw-alias-toast-bg: rgba(28, 28, 30, .86);
   --dsw-alias-tooltip-bg: rgba(44, 44, 46, .92);
   --dsw-alias-tooltip-fg: #ffffff;
-  --dsw-hovercard-bg: rgba(28, 28, 30, .78);
+  /* 深色主题同样沿用 shell 的悬停卡片底色（见浅色段说明）。 */
   --dsw-linear-gradient-think: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .16), rgba(255, 255, 255, 0));
   --dsw-linear-think-select: linear-gradient(90deg, rgba(10, 132, 255, .24), rgba(255, 255, 255, .12));
 

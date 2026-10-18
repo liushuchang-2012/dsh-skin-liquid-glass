@@ -1,6 +1,6 @@
 {
   "name": "dsh-skin-liquid-glass",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "iOS 26 Liquid Glass skin for the DeepSeek Harness Web UI — one sheet of frosted glass over a pastel mesh wallpaper, system blue as the only accent, light and dark palettes both checked for AA text contrast. Ships as a DSH client plugin with no host-side behaviour and no dependency.",
   "type": "module",
   "main": "lib/index.js",
