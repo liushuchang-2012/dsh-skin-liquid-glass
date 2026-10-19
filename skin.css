@@ -188,8 +188,8 @@ body {
   --dsw-linear-think-select: linear-gradient(90deg, rgba(10, 124, 255, .20), rgba(0, 0, 0, .12));
 
   /* the shell's own surface tokens —this is where most panels read glass */
-  --dsw-specific-bubble: rgba(255, 255, 255, .66);
-  --dsw-specific-bubble-highlight: rgba(255, 255, 255, .88);
+  --dsw-specific-bubble: color-mix(in srgb, var(--dsw-static-deepseek-300, #b7c8fe) 62%, rgba(255, 255, 255, .55));
+  --dsw-specific-bubble-highlight: color-mix(in srgb, var(--dsw-static-deepseek-200, #d3e2ff) 60%, rgba(255, 255, 255, .70));
   --dsw-specific-input-major: rgba(255, 255, 255, .78);
   --dsw-specific-login-input: rgba(255, 255, 255, .82);
   /* dropdowns / menus / popovers use the shell's own material —the skin no
@@ -334,8 +334,8 @@ body[data-ds-dark-theme] {
   --dsw-linear-gradient-think: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .16), rgba(255, 255, 255, 0));
   --dsw-linear-think-select: linear-gradient(90deg, rgba(10, 132, 255, .24), rgba(255, 255, 255, .12));
 
-  --dsw-specific-bubble: rgba(52, 52, 54, .68);
-  --dsw-specific-bubble-highlight: rgba(72, 72, 74, .85);
+  --dsw-specific-bubble: color-mix(in srgb, var(--dsw-static-neutral-bluish-850, #2c2c2e) 45%, rgba(52, 52, 54, .62));
+  --dsw-specific-bubble-highlight: color-mix(in srgb, var(--dsw-static-neutral-bluish-750, #3a3a3c) 45%, rgba(72, 72, 74, .55));
   --dsw-specific-input-major: rgba(38, 38, 40, .82);
   --dsw-specific-login-input: rgba(42, 42, 44, .86);
   --dsw-specific-menu: var(--dsw-menu-surface-fill);
