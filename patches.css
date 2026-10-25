@@ -74,6 +74,15 @@ body::before,
   backdrop-filter: blur(40px) saturate(160%) !important;
 }
 
+/* 0.2.11: the conversation root (.an3WzG_root) and the composer seat each paint
+   --dsw-alias-bg-base as well; they live inside the centre column, so match them
+   structurally instead of by the old data-slot path. */
+[class*="centerCol"] [class$="_root"],
+[data-slot="main.conversation"] [class$="_root"],
+[class*="composerSeat"] {
+  background: transparent !important;
+}
+
 /* 0.2.10: DSH 0.2.1's AppFrame paints --dsw-alias-bg-base on the layout frame
    and a fill on its titlebar strip; both sit above our fog, so clear them. */
 [class*="q_frame"],
