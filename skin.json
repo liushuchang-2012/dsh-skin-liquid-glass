@@ -3,7 +3,7 @@
   "id": "ios-liquid-glass",
   "name": "iOS 液态玻璃",
   "nameEn": "iOS Liquid Glass",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "author": "liushuchang-2012",
   "tagline": "白到灰到淡蓝的静态雾场 · 一层磨砂 · 悬浮玻璃侧栏",
   "description": "一层自绘的静态雾场铺在 shell 之下：顶部纯白、中段转灰、底部一抹淡蓝，整窗只磨一次（blur 40px），三栏透明叠在上面，所以左右不会出现色差。左侧栏是一块 24px 圆角的悬浮玻璃卡（22% 白纱 + blur 40px + 细描边 + 投影），回复是一颗气泡、你发的消息带投影，代码块与输入框是仅有的两处实心表面。",

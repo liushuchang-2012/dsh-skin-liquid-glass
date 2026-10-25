@@ -59,9 +59,16 @@ body::before,
 
 /* --- one frost for the whole window --------------------------------------- */
 
+/* DSH 0.2.1 removed [data-dsh-frame]; #root is the shell root now, so the
+   single frost sheet hangs on it and the legacy selectors stay for old builds. */
+#root::before,
 [data-dsh-frame]::before,
 [data-windows-titlebar] [data-dsh-frame]::before {
   content: "" !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
   background: rgba(255, 255, 255, .10) !important;
   -webkit-backdrop-filter: blur(40px) saturate(160%) !important;
   backdrop-filter: blur(40px) saturate(160%) !important;
@@ -77,7 +84,12 @@ body::before,
 [data-dsh-surface="sidebar"],
 [data-dsh-surface="conversation"],
 [data-slot="sidebar"],
-[data-slot="main.conversation"] {
+[data-slot="main.conversation"],
+[data-windows-titlebar] [class*="centerCol"],
+[data-windows-titlebar] [class*="rightbarCol"],
+[data-windows-titlebar] [class*="bottomRow"],
+[class*="ConversationRoot"],
+[data-slot="main.conversation"] [class$="_root"] {
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
