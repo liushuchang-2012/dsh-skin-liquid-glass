@@ -74,6 +74,13 @@ body::before,
   backdrop-filter: blur(40px) saturate(160%) !important;
 }
 
+/* 0.2.10: DSH 0.2.1's AppFrame paints --dsw-alias-bg-base on the layout frame
+   and a fill on its titlebar strip; both sit above our fog, so clear them. */
+[class*="q_frame"],
+[class*="q_frame"]::before {
+  background: transparent !important;
+}
+
 /* --- both halves are windows onto that one background --------------------- */
 
 [class*="sidebarCol"],

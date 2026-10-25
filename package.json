@@ -1,6 +1,6 @@
 {
   "name": "dsh-skin-liquid-glass",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "iOS 26 Liquid Glass skin for DeepSeek Harness: one shared white-grey-blue fog, a single 40px frost over the whole window, a floating glass sidebar and reply bubbles.",
   "type": "module",
   "main": "lib/index.js",
